@@ -1,0 +1,1 @@
+yes | tmsh revoke sys license

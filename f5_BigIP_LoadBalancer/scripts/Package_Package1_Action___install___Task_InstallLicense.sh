@@ -1,0 +1,1 @@
+SOAPLicenseClient --basekey @@{License}@@

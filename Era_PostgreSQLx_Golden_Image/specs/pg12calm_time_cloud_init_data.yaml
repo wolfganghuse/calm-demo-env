@@ -1,0 +1,17 @@
+|-
+#cloud-config
+hostname: @@{name}@@
+users:
+  - name: @@{cred_centos_key.username}@@
+    ssh-authorized-keys:
+      - @@{cred_centos_key.public_key}@@
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+  - name: @@{cred_era_password.username}@@
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+  - name: postgres
+    
+ssh_pwauth: True
+chpasswd:
+  list: |
+    @@{cred_era_password.username}@@:@@{cred_era_password.secret}@@
+  expire: False

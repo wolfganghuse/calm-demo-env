@@ -1,0 +1,13 @@
+|-
+#cloud-config
+hostname: @@{name}@@
+users:
+  - name: @@{cred_centos_password.username}@@
+    ssh-authorized-keys:
+      - @@{cred_centos_key.public_key}@@
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+ssh_pwauth: True
+chpasswd:
+  list: |
+    @@{cred_centos_password.username}@@:@@{cred_centos_password.secret}@@
+  expire: False

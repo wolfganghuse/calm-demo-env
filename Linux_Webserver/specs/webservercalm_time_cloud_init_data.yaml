@@ -1,0 +1,9 @@
+|2-
+
+
+  #cloud-config
+  users:
+    - name: centos
+      ssh-authorized-keys:
+        - @@{Cred_OS.public_key}@@
+      sudo: ['ALL=(ALL) NOPASSWD:ALL']

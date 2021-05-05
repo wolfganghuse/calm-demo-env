@@ -1,0 +1,7 @@
+|-
+#cloud-config
+chpasswd:
+  list: |
+    root:@@{root.secret}@@
+    admin:@@{admin.secret}@@
+  expire: False
