@@ -151,6 +151,10 @@ class PrismCentralDemo(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
+    project_uuid = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
 
 
 class existing_phpIPAM(Substrate):
@@ -207,7 +211,7 @@ class existing_PrismCentralDemo(Substrate):
     )
 
 
-class Package1(Package):
+class pkg_phpIPAM(Package):
 
     services = [ref(phpIPAM)]
 
@@ -217,21 +221,21 @@ class Package1(Package):
         CalmTask.Exec.escript(
             name="Release Subnet",
             filename=os.path.join(
-                "scripts", "Package_Package1_Action___uninstall___Task_ReleaseSubnet.py"
+                "scripts", "pkg_phpIPAM__uninstall__Task_ReleaseSubnet.py"
             ),
             target=ref(phpIPAM),
         )
         CalmTask.Exec.escript(
             name="Release VLAN",
             filename=os.path.join(
-                "scripts", "Package_Package1_Action___uninstall___Task_ReleaseVLAN.py"
+                "scripts", "pkg_phpIPAM__uninstall__Task_ReleaseVLAN.py"
             ),
             target=ref(phpIPAM),
         )
         CalmTask.Exec.escript(
             name="Release GW IP",
             filename=os.path.join(
-                "scripts", "Package_Package1_Action___uninstall___Task_ReleaseGWIP.py"
+                "scripts", "pkg_phpIPAM__uninstall__Task_ReleaseGWIP.py"
             ),
             target=ref(phpIPAM),
         )
@@ -329,6 +333,34 @@ class pkg_PrismCentralDemo(Package):
             variables=["subnet_uuid"]
         )
 
+        CalmTask.SetVariable.escript(
+            name="Create Project",
+            filename=os.path.join(
+                "scripts",
+                "pkg_PrismCentralDemo__install__Task_CreateProject.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["task_uuid"],
+        )
+        CalmTask.Exec.escript(
+            name="Monitor Project",
+            filename=os.path.join(
+                "scripts",
+                "lib__Task_MonitorProgress.py",
+            ),
+            target=ref(PrismCentralDemo),
+        )
+
+        CalmTask.SetVariable.escript(
+            name="Get Project UUID",
+            filename=os.path.join(
+                "scripts",
+                "pkg_PrismCentralDemo__install__Task_GetProjectUUID.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["project_uuid"]
+        )
+
     @action
     def __uninstall__():
 
@@ -349,6 +381,23 @@ class pkg_PrismCentralDemo(Package):
             target=ref(PrismCentralDemo),
         )
 
+        CalmTask.SetVariable.escript(
+            name="Delete Project",
+            filename=os.path.join(
+                "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteProject.py"
+            ),
+            variables=["task_uuid"],
+            target=ref(PrismCentralDemo),
+        )
+
+        CalmTask.Exec.escript(
+            name="Monitor Delete Project",
+            filename=os.path.join(
+                "scripts", "lib__Task_MonitorProgress.py"
+            ),
+            target=ref(PrismCentralDemo),
+        )
+
 
 class _0720591e_deployment(Deployment):
 
@@ -357,7 +406,7 @@ class _0720591e_deployment(Deployment):
     max_replicas = "1"
     default_replicas = "1"
 
-    packages = [ref(Package1)]
+    packages = [ref(pkg_phpIPAM)]
     substrate = ref(existing_phpIPAM)
 
 
@@ -425,7 +474,7 @@ class Default(Profile):
 class CreateDemoTenant(Blueprint):
 
     services = [phpIPAM, Fortigate, PrismCentralDemo]
-    packages = [Package1, pkg_Fortigate, pkg_PrismCentralDemo]
+    packages = [pkg_phpIPAM, pkg_Fortigate, pkg_PrismCentralDemo]
     substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo]
     profiles = [Default]
     credentials = [
