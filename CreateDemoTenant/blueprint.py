@@ -128,7 +128,17 @@ class phpIPAM(Service):
 
 class Fortigate(Service):
 
-    pass
+   fortigate_csrf_token = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+   fortigate_cookie = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+   interface_name = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
 
 
 class PrismCentralDemo(Service):
@@ -158,7 +168,7 @@ class PrismCentralDemo(Service):
             name="MonitorVLAN",
             filename=os.path.join(
                 "scripts",
-                "Service_PrismCentralDemo_Action___create___Task_MonitorVLAN.py",
+                "lib__Task_MonitorProgress.py",
             ),
             target=ref(PrismCentralDemo),
             variables=["subnet_uuid"]
@@ -249,22 +259,85 @@ class Package1(Package):
         )
 
 
-class Package2(Package):
+class pkg_Fortigate(Package):
 
     services = [ref(Fortigate)]
 
+    @action
+    def __install__():
 
-class Package3(Package):
+        CalmTask.SetVariable.escript(
+            name="Login Fortigate",
+            filename=os.path.join(
+                "scripts","lib__Task_LoginFortigate.py"),
+                variables=["fortigate_csrf_token","fortigate_cookie"],
+                target=ref(Fortigate)
+        )
+
+        CalmTask.SetVariable.escript(
+            name="Create VLAN Interface",
+            filename=os.path.join(
+                "scripts","pkg_Fortigate__install__Task_CreateVLANInterface.py"),
+                variables=["interface_name"],
+                target=ref(Fortigate)
+        )
+
+        CalmTask.Exec.escript(
+            name="Create Address Object",
+            filename=os.path.join(
+                "scripts","pkg_Fortigate__install__Task_Create_Address.py"),
+                target=ref(Fortigate)
+        )
+
+    @action
+    def __uninstall__():
+
+        CalmTask.SetVariable.escript(
+            name="Login Fortigate",
+            filename=os.path.join(
+                "scripts","lib__Task_LoginFortigate.py"),
+                variables=["fortigate_csrf_token","fortigate_cookie"],
+                target=ref(Fortigate)
+        )
+
+        CalmTask.Exec.escript(
+            name="Delete VLAN Interface",
+            filename=os.path.join(
+                "scripts","pkg_Fortigate__uninstall__Task_DeleteVLANInterface.py"),
+                target=ref(Fortigate)
+        )
+
+        CalmTask.Exec.escript(
+            name="Delete Address Object",
+            filename=os.path.join(
+                "scripts","pkg_Fortigate__uninstall__Task_DeleteAddress.py"),
+                target=ref(Fortigate)
+        )
+
+
+
+        
+
+class pkg_PrismCentralDemo(Package):
 
     services = [ref(PrismCentralDemo)]
 
     @action
     def __uninstall__():
 
-        CalmTask.Exec.escript(
+        CalmTask.SetVariable.escript(
             name="Delete Subnet",
             filename=os.path.join(
-                "scripts", "Package_Package3_Action___uninstall___Task_DeleteSubnet.py"
+                "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteSubnet.py"
+            ),
+            variables=["task_uuid"],
+            target=ref(PrismCentralDemo),
+        )
+
+        CalmTask.Exec.escript(
+            name="Monitor Delete Subnet",
+            filename=os.path.join(
+                "scripts", "lib__Task_MonitorProgress.py"
             ),
             target=ref(PrismCentralDemo),
         )
@@ -287,7 +360,7 @@ class b6867c95_deployment(Deployment):
     max_replicas = "1"
     default_replicas = "1"
 
-    packages = [ref(Package2)]
+    packages = [ref(pkg_Fortigate)]
     substrate = ref(existing_Fortigate)
 
 
@@ -297,7 +370,7 @@ class a6542720_deployment(Deployment):
     max_replicas = "1"
     default_replicas = "1"
 
-    packages = [ref(Package3)]
+    packages = [ref(pkg_PrismCentralDemo)]
     substrate = ref(existing_PrismCentralDemo)
 
 
@@ -345,7 +418,7 @@ class Default(Profile):
 class CreateDemoTenant(Blueprint):
 
     services = [phpIPAM, Fortigate, PrismCentralDemo]
-    packages = [Package1, Package2, Package3]
+    packages = [Package1, pkg_Fortigate, pkg_PrismCentralDemo]
     substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo]
     profiles = [Default]
     credentials = [

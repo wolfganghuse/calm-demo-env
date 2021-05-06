@@ -4,7 +4,7 @@ headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 for x in range(12):
   
   # Set the address and make cluster/list call
-  url = "https://@@{existing_PrismCentralDemo.address}@@:9440/api/nutanix/v3/tasks/@@{task_uuid}@@"
+  url = "https://@@{address}@@:9440/api/nutanix/v3/tasks/@@{task_uuid}@@"
   resp = urlreq(url, verb='GET', user="@@{cred_PCDemo.username}@@", passwd="@@{cred_PCDemo.secret}@@", auth='BASIC', headers=headers, verify=False)
 
   # If the call went through successfully, check the progress
