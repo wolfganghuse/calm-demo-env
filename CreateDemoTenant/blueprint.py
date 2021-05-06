@@ -72,60 +72,6 @@ class phpIPAM(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
-    @action
-    def __create__():
-        """System action for creating an application"""
-
-        CalmTask.SetVariable.escript(
-            name="Get free VLAN",
-            filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetfreeVLAN.py"
-            ),
-            target=ref(phpIPAM),
-            variables=["vlan_id", "vlan_number"],
-        )
-        CalmTask.SetVariable.escript(
-            name="Get free Network",
-            filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetfreeNetwork.py"
-            ),
-            target=ref(phpIPAM),
-            variables=["subnet_id"],
-        )
-        CalmTask.Exec.escript(
-            name="Assign VLAN to Tenant",
-            filename=os.path.join(
-                "scripts",
-                "Service_phpIPAM_Action___create___Task_AssignVLANtoTenant.py",
-            ),
-            target=ref(phpIPAM),
-        )
-        CalmTask.Exec.escript(
-            name="Assign Subnet to Tenant",
-            filename=os.path.join(
-                "scripts",
-                "Service_phpIPAM_Action___create___Task_AssignSubnettoTenant.py",
-            ),
-            target=ref(phpIPAM),
-        )
-        CalmTask.SetVariable.escript(
-            name="Get Gateway IP",
-            filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetGatewayIP.py"
-            ),
-            target=ref(phpIPAM),
-            variables=["gw_id", "gw_ip"],
-        )
-        CalmTask.SetVariable.escript(
-            name="Get Network Details",
-            filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetNetworkDetails.py"
-            ),
-            target=ref(phpIPAM),
-            variables=["subnet"],
-        )
-
-
 class Fortigate(Service):
 
    fortigate_csrf_token = CalmVariable.Simple(
@@ -214,6 +160,58 @@ class existing_PrismCentralDemo(Substrate):
 class pkg_phpIPAM(Package):
 
     services = [ref(phpIPAM)]
+
+    @action
+    def __install__():
+    
+        CalmTask.SetVariable.escript(
+            name="Get free VLAN",
+            filename=os.path.join(
+                "scripts", "Service_phpIPAM_Action___create___Task_GetfreeVLAN.py"
+            ),
+            target=ref(phpIPAM),
+            variables=["vlan_id", "vlan_number"],
+        )
+        CalmTask.SetVariable.escript(
+            name="Get free Network",
+            filename=os.path.join(
+                "scripts", "Service_phpIPAM_Action___create___Task_GetfreeNetwork.py"
+            ),
+            target=ref(phpIPAM),
+            variables=["subnet_id"],
+        )
+        CalmTask.Exec.escript(
+            name="Assign VLAN to Tenant",
+            filename=os.path.join(
+                "scripts",
+                "Service_phpIPAM_Action___create___Task_AssignVLANtoTenant.py",
+            ),
+            target=ref(phpIPAM),
+        )
+        CalmTask.Exec.escript(
+            name="Assign Subnet to Tenant",
+            filename=os.path.join(
+                "scripts",
+                "Service_phpIPAM_Action___create___Task_AssignSubnettoTenant.py",
+            ),
+            target=ref(phpIPAM),
+        )
+        CalmTask.SetVariable.escript(
+            name="Get Gateway IP",
+            filename=os.path.join(
+                "scripts", "Service_phpIPAM_Action___create___Task_GetGatewayIP.py"
+            ),
+            target=ref(phpIPAM),
+            variables=["gw_id", "gw_ip"],
+        )
+        CalmTask.SetVariable.escript(
+            name="Get Network Details",
+            filename=os.path.join(
+                "scripts", "Service_phpIPAM_Action___create___Task_GetNetworkDetails.py"
+            ),
+            target=ref(phpIPAM),
+            variables=["subnet"],
+        )
 
     @action
     def __uninstall__():
