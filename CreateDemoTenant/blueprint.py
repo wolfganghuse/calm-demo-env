@@ -72,17 +72,18 @@ class phpIPAM(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
+
 class Fortigate(Service):
 
-   fortigate_csrf_token = CalmVariable.Simple(
+    fortigate_csrf_token = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
-   fortigate_cookie = CalmVariable.Simple(
+    fortigate_cookie = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
-   interface_name = CalmVariable.Simple(
+    interface_name = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
@@ -100,7 +101,6 @@ class PrismCentralDemo(Service):
     project_uuid = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
-
 
 
 class existing_phpIPAM(Substrate):
@@ -163,11 +163,11 @@ class pkg_phpIPAM(Package):
 
     @action
     def __install__():
-    
+
         CalmTask.SetVariable.escript(
             name="Get free VLAN",
             filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetfreeVLAN.py"
+                "scripts", "Package_pkg_phpIPAM_Action___install___Task_GetfreeVLAN.py"
             ),
             target=ref(phpIPAM),
             variables=["vlan_id", "vlan_number"],
@@ -175,7 +175,8 @@ class pkg_phpIPAM(Package):
         CalmTask.SetVariable.escript(
             name="Get free Network",
             filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetfreeNetwork.py"
+                "scripts",
+                "Package_pkg_phpIPAM_Action___install___Task_GetfreeNetwork.py",
             ),
             target=ref(phpIPAM),
             variables=["subnet_id"],
@@ -184,7 +185,7 @@ class pkg_phpIPAM(Package):
             name="Assign VLAN to Tenant",
             filename=os.path.join(
                 "scripts",
-                "Service_phpIPAM_Action___create___Task_AssignVLANtoTenant.py",
+                "Package_pkg_phpIPAM_Action___install___Task_AssignVLANtoTenant.py",
             ),
             target=ref(phpIPAM),
         )
@@ -192,14 +193,14 @@ class pkg_phpIPAM(Package):
             name="Assign Subnet to Tenant",
             filename=os.path.join(
                 "scripts",
-                "Service_phpIPAM_Action___create___Task_AssignSubnettoTenant.py",
+                "Package_pkg_phpIPAM_Action___install___Task_AssignSubnettoTenant.py",
             ),
             target=ref(phpIPAM),
         )
         CalmTask.SetVariable.escript(
             name="Get Gateway IP",
             filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetGatewayIP.py"
+                "scripts", "Package_pkg_phpIPAM_Action___install___Task_GetGatewayIP.py"
             ),
             target=ref(phpIPAM),
             variables=["gw_id", "gw_ip"],
@@ -207,7 +208,8 @@ class pkg_phpIPAM(Package):
         CalmTask.SetVariable.escript(
             name="Get Network Details",
             filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetNetworkDetails.py"
+                "scripts",
+                "Package_pkg_phpIPAM_Action___install___Task_GetNetworkDetails.py",
             ),
             target=ref(phpIPAM),
             variables=["subnet"],
@@ -219,21 +221,24 @@ class pkg_phpIPAM(Package):
         CalmTask.Exec.escript(
             name="Release Subnet",
             filename=os.path.join(
-                "scripts", "pkg_phpIPAM__uninstall__Task_ReleaseSubnet.py"
+                "scripts",
+                "Package_pkg_phpIPAM_Action___uninstall___Task_ReleaseSubnet.py",
             ),
             target=ref(phpIPAM),
         )
         CalmTask.Exec.escript(
             name="Release VLAN",
             filename=os.path.join(
-                "scripts", "pkg_phpIPAM__uninstall__Task_ReleaseVLAN.py"
+                "scripts",
+                "Package_pkg_phpIPAM_Action___uninstall___Task_ReleaseVLAN.py",
             ),
             target=ref(phpIPAM),
         )
         CalmTask.Exec.escript(
             name="Release GW IP",
             filename=os.path.join(
-                "scripts", "pkg_phpIPAM__uninstall__Task_ReleaseGWIP.py"
+                "scripts",
+                "Package_pkg_phpIPAM_Action___uninstall___Task_ReleaseGWIP.py",
             ),
             target=ref(phpIPAM),
         )
@@ -249,24 +254,28 @@ class pkg_Fortigate(Package):
         CalmTask.SetVariable.escript(
             name="Login Fortigate",
             filename=os.path.join(
-                "scripts","lib__Task_LoginFortigate.py"),
-                variables=["fortigate_csrf_token","fortigate_cookie"],
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___install___Task_LoginFortigate.py",
+            ),
+            target=ref(Fortigate),
+            variables=["fortigate_csrf_token", "fortigate_cookie"],
         )
-
         CalmTask.SetVariable.escript(
             name="Create VLAN Interface",
             filename=os.path.join(
-                "scripts","pkg_Fortigate__install__Task_CreateVLANInterface.py"),
-                variables=["interface_name"],
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___install___Task_CreateVLANInterface.py",
+            ),
+            target=ref(Fortigate),
+            variables=["interface_name"],
         )
-
         CalmTask.Exec.escript(
             name="Create Address Object",
             filename=os.path.join(
-                "scripts","pkg_Fortigate__install__Task_Create_Address.py"),
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___install___Task_CreateAddressObject.py",
+            ),
+            target=ref(Fortigate),
         )
 
     @action
@@ -275,26 +284,29 @@ class pkg_Fortigate(Package):
         CalmTask.SetVariable.escript(
             name="Login Fortigate",
             filename=os.path.join(
-                "scripts","lib__Task_LoginFortigate.py"),
-                variables=["fortigate_csrf_token","fortigate_cookie"],
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___uninstall___Task_LoginFortigate.py",
+            ),
+            target=ref(Fortigate),
+            variables=["fortigate_csrf_token", "fortigate_cookie"],
         )
-
         CalmTask.Exec.escript(
             name="Delete Address Object",
             filename=os.path.join(
-                "scripts","pkg_Fortigate__uninstall__Task_DeleteAddress.py"),
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___uninstall___Task_DeleteAddressObject.py",
+            ),
+            target=ref(Fortigate),
         )
-
         CalmTask.Exec.escript(
             name="Delete VLAN Interface",
             filename=os.path.join(
-                "scripts","pkg_Fortigate__uninstall__Task_DeleteVLANInterface.py"),
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___uninstall___Task_DeleteVLANInterface.py",
+            ),
+            target=ref(Fortigate),
         )
 
-        
 
 class pkg_PrismCentralDemo(Package):
 
@@ -307,7 +319,7 @@ class pkg_PrismCentralDemo(Package):
             name="Create Tenant Subnet",
             filename=os.path.join(
                 "scripts",
-                "pkg_PrismCentralDemo__install__Task_CreateTenantSubnet.py",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_CreateTenantSubnet.py",
             ),
             target=ref(PrismCentralDemo),
             variables=["task_uuid"],
@@ -316,26 +328,24 @@ class pkg_PrismCentralDemo(Package):
             name="MonitorVLAN",
             filename=os.path.join(
                 "scripts",
-                "lib__Task_MonitorProgress.py",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_MonitorVLAN.py",
             ),
             target=ref(PrismCentralDemo),
         )
-
         CalmTask.SetVariable.escript(
             name="Get Subnet UUID",
             filename=os.path.join(
                 "scripts",
-                "pkg_PrismCentralDemo__install__Task_GetSubnetUUID.py",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_GetSubnetUUID.py",
             ),
             target=ref(PrismCentralDemo),
-            variables=["subnet_uuid"]
+            variables=["subnet_uuid"],
         )
-
         CalmTask.SetVariable.escript(
             name="Create Project",
             filename=os.path.join(
                 "scripts",
-                "pkg_PrismCentralDemo__install__Task_CreateProject.py",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_CreateProject.py",
             ),
             target=ref(PrismCentralDemo),
             variables=["task_uuid"],
@@ -344,19 +354,18 @@ class pkg_PrismCentralDemo(Package):
             name="Monitor Project",
             filename=os.path.join(
                 "scripts",
-                "lib__Task_MonitorProgress.py",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_MonitorProject.py",
             ),
             target=ref(PrismCentralDemo),
         )
-
         CalmTask.SetVariable.escript(
             name="Get Project UUID",
             filename=os.path.join(
                 "scripts",
-                "pkg_PrismCentralDemo__install__Task_GetProjectUUID.py",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_GetProjectUUID.py",
             ),
             target=ref(PrismCentralDemo),
-            variables=["project_uuid"]
+            variables=["project_uuid"],
         )
 
     @action
@@ -365,48 +374,37 @@ class pkg_PrismCentralDemo(Package):
         CalmTask.SetVariable.escript(
             name="Delete Subnet",
             filename=os.path.join(
-                "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteSubnet.py"
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___uninstall___Task_DeleteSubnet.py",
             ),
-            variables=["task_uuid"],
             target=ref(PrismCentralDemo),
+            variables=["task_uuid"],
         )
-
         CalmTask.Exec.escript(
             name="Monitor Delete Subnet",
             filename=os.path.join(
-                "scripts", "lib__Task_MonitorProgress.py"
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___uninstall___Task_MonitorDeleteSubnet.py",
             ),
             target=ref(PrismCentralDemo),
         )
-
         CalmTask.SetVariable.escript(
             name="Delete Project",
             filename=os.path.join(
-                "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteProject.py"
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___uninstall___Task_DeleteProject.py",
             ),
-            variables=["task_uuid"],
             target=ref(PrismCentralDemo),
+            variables=["task_uuid"],
         )
-
         CalmTask.Exec.escript(
             name="Monitor Delete Project",
             filename=os.path.join(
-                "scripts", "lib__Task_MonitorProgress.py"
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["task_uuid"]
-        )
-
-        CalmTask.Exec.escript(
-            name="Monitor Subnet Delete",
-            filename=os.path.join(
-                "scripts", "Package_Package3_Action___uninstall___Task_MonitorSubnetDelete.py"
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___uninstall___Task_MonitorDeleteProject.py",
             ),
             target=ref(PrismCentralDemo),
         )
-
-
-
 
 
 class _0720591e_deployment(Deployment):

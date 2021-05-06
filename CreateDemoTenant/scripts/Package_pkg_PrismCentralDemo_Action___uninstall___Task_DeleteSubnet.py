@@ -6,10 +6,7 @@ resp = urlreq(url, verb='DELETE', user="@@{cred_PCDemo.username}@@", passwd="@@{
 
 # If the call went through successfully, check the progress
 if resp.ok:
-<<<<<<< HEAD:CreateDemoTenant/scripts/pkg_PrismCentralDemo__uninstall__Task_DeleteSubnet.py
     print resp.content
-=======
->>>>>>> main:CreateDemoTenant/scripts/Package_Package3_Action___uninstall___Task_DeleteSubnet.py
     print "task_uuid={0}".format(json.loads(resp.content)['status']['execution_context']['task_uuid'])
 
 # If the call failed
