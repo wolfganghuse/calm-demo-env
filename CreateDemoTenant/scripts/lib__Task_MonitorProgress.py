@@ -13,19 +13,19 @@ for x in range(12):
       print "Job failed", json.dumps(json.loads(resp.content), indent=4)
       exit(1)
     if (json.loads(resp.content)['status'] == "SUCCEEDED"):
-      print("subnet_uuid={}".format(json.loads(resp.content)['entity_reference_list'][0]['uuid']))
+      print "Job succeeded", json.dumps(json.loads(resp.content), indent=4)
       exit(0)
     else:
-      print("Subnet Create progress: {}".format(json.loads(resp.content)["percentage_complete"]))
+      print("Job progress: {}".format(json.loads(resp.content)["percentage_complete"]))
     print("Sleeping for 10 seconds")
     sleep(10)
 
   # If the call failed
   else:
-    print "Subnet Create call failed", json.dumps(json.loads(resp.content), indent=4)
+    print "Job call failed", json.dumps(json.loads(resp.content), indent=4)
     exit(1)
     
 # If we got to this point, the cluster didn't create in 20 minutes, so error out
 else:
-  print "Subnet was not created in 2 minutes, errroring out.", json.dumps(json.loads(resp.content), indent=4)
+  print "Job was not finished in 2 minutes, errroring out.", json.dumps(json.loads(resp.content), indent=4)
   exit(1)

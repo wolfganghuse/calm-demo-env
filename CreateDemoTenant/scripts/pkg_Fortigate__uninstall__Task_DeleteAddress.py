@@ -1,3 +1,4 @@
+import requests
 # region capture Calm variables
 
 api_server = "@@{Fortigate.address}@@"
@@ -13,7 +14,7 @@ fortigate_cookie = @@{fortigate_cookie}@@
 def fortigate_delete_Address(api_server, api_server_port, fortigate_csrf_token, fortigate_cookie, name, vdom="root"):
     
   # region prepare api call
-  api_server_endpoint = "/api/v2/cmdb/firewall/address/{}".format(name)
+  api_server_endpoint = requests.utils.quote("/api/v2/cmdb/firewall/address/{0} address".format(name))
   url = "http://{}:{}{}".format(
       api_server,
       api_server_port,

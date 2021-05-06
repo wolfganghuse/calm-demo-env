@@ -279,20 +279,18 @@ class pkg_Fortigate(Package):
         )
 
         CalmTask.Exec.escript(
-            name="Delete VLAN Interface",
-            filename=os.path.join(
-                "scripts","pkg_Fortigate__uninstall__Task_DeleteVLANInterface.py"),
-                target=ref(Fortigate)
-        )
-
-        CalmTask.Exec.escript(
             name="Delete Address Object",
             filename=os.path.join(
                 "scripts","pkg_Fortigate__uninstall__Task_DeleteAddress.py"),
                 target=ref(Fortigate)
         )
 
-
+        CalmTask.Exec.escript(
+            name="Delete VLAN Interface",
+            filename=os.path.join(
+                "scripts","pkg_Fortigate__uninstall__Task_DeleteVLANInterface.py"),
+                target=ref(Fortigate)
+        )
 
         
 
