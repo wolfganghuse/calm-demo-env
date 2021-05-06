@@ -261,13 +261,25 @@ class Package3(Package):
     @action
     def __uninstall__():
 
-        CalmTask.Exec.escript(
+        CalmTask.SetVariable.escript(
             name="Delete Subnet",
             filename=os.path.join(
                 "scripts", "Package_Package3_Action___uninstall___Task_DeleteSubnet.py"
             ),
             target=ref(PrismCentralDemo),
+            variables=["task_uuid"]
         )
+
+        CalmTask.Exec.escript(
+            name="Monitor Subnet Delete",
+            filename=os.path.join(
+                "scripts", "Package_Package3_Action___uninstall___Task_MonitorSubnetDelete.py"
+            ),
+            target=ref(PrismCentralDemo),
+        )
+
+
+
 
 
 class _0720591e_deployment(Deployment):

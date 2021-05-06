@@ -6,7 +6,9 @@ resp = urlreq(url, verb='DELETE', user="@@{cred_PCDemo.username}@@", passwd="@@{
 
 # If the call went through successfully, check the progress
 if resp.ok:
-    print (resp.content)
+    print "task_uuid={0}".format(json.loads(resp.content)['status']['execution_context']['task_uuid'])
+
+# If the call failed
 else:
-    print("Call failed"), json.dumps(json.loads(resp.content), indent=4)
-    exit(1)
+        print("Call failed"), json.dumps(json.loads(resp.content), indent=4)
+        exit(1)
