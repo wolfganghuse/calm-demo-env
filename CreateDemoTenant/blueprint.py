@@ -273,7 +273,6 @@ class pkg_Fortigate(Package):
     def __uninstall__():
 
         CalmTask.SetVariable.escript(
-<<<<<<< HEAD
             name="Login Fortigate",
             filename=os.path.join(
                 "scripts","lib__Task_LoginFortigate.py"),
@@ -364,8 +363,6 @@ class pkg_PrismCentralDemo(Package):
     def __uninstall__():
 
         CalmTask.SetVariable.escript(
-=======
->>>>>>> main
             name="Delete Subnet",
             filename=os.path.join(
                 "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteSubnet.py"
