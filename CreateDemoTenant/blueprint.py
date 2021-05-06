@@ -154,13 +154,14 @@ class PrismCentralDemo(Service):
             target=ref(PrismCentralDemo),
             variables=["task_uuid"],
         )
-        CalmTask.Exec.escript(
+        CalmTask.SetVariable.escript(
             name="MonitorVLAN",
             filename=os.path.join(
                 "scripts",
                 "Service_PrismCentralDemo_Action___create___Task_MonitorVLAN.py",
             ),
             target=ref(PrismCentralDemo),
+            variables=["subnet_uuid"]
         )
 
 
