@@ -151,28 +151,6 @@ class PrismCentralDemo(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
-    @action
-    def __create__():
-        """System action for creating an application"""
-
-        CalmTask.SetVariable.escript(
-            name="Create Tenant Subnet",
-            filename=os.path.join(
-                "scripts",
-                "Service_PrismCentralDemo_Action___create___Task_CreateTenantSubnet.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["task_uuid"],
-        )
-        CalmTask.SetVariable.escript(
-            name="MonitorVLAN",
-            filename=os.path.join(
-                "scripts",
-                "lib__Task_MonitorProgress.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["subnet_uuid"]
-        )
 
 
 class existing_phpIPAM(Substrate):
@@ -321,6 +299,37 @@ class pkg_Fortigate(Package):
 class pkg_PrismCentralDemo(Package):
 
     services = [ref(PrismCentralDemo)]
+
+    @action
+    def __install__():
+
+        CalmTask.SetVariable.escript(
+            name="Create Tenant Subnet",
+            filename=os.path.join(
+                "scripts",
+                "pkg_PrismCentralDemo__install__Task_CreateTenantSubnet.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["task_uuid"],
+        )
+        CalmTask.Exec.escript(
+            name="MonitorVLAN",
+            filename=os.path.join(
+                "scripts",
+                "lib__Task_MonitorProgress.py",
+            ),
+            target=ref(PrismCentralDemo),
+        )
+
+        CalmTask.SetVariable.escript(
+            name="Get Subnet UUID",
+            filename=os.path.join(
+                "scripts",
+                "pkg_PrismCentralDemo__install__Task_GetSubnetUUID.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["subnet_uuid"]
+        )
 
     @action
     def __uninstall__():
