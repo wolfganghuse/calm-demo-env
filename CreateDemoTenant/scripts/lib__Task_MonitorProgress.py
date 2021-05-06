@@ -10,7 +10,7 @@ for x in range(12):
   # If the call went through successfully, check the progress
   if resp.ok:
     if (json.loads(resp.content)['status'] == "FAILED"):
-      print "Subnet Create call failed", json.dumps(json.loads(resp.content), indent=4)
+      print "Job failed", json.dumps(json.loads(resp.content), indent=4)
       exit(1)
     if (json.loads(resp.content)['status'] == "SUCCEEDED"):
       print("subnet_uuid={}".format(json.loads(resp.content)['entity_reference_list'][0]['uuid']))
