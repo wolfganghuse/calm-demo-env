@@ -8,8 +8,11 @@ tenant_bitmask = @@{phpIPAM.subnet}@@['Subnet bitmask']
 tenant_subnet_split = tenant_subnet.split(".")
 tenant_dhcp_min = "{0}.{1}.{2}.{3}".format(tenant_subnet_split[0],tenant_subnet_split[1],tenant_subnet_split[2],int(tenant_subnet_split[3])+dhcp_min)
 tenant_dhcp_max = "{0}.{1}.{2}.{3}".format(tenant_subnet_split[0],tenant_subnet_split[1],tenant_subnet_split[2],int(tenant_subnet_split[3])+dhcp_max)
+user_project_name = "@@{tenant_prefix}@@"
+project_vlan_id = "@@{phpIPAM.vlan_number}@@"
 
 tenant_dhcp_range = "{0} {1}".format(tenant_dhcp_min,tenant_dhcp_max)
+subnet_name = "{0}_VPC{1}".format(user_project_name,project_vlan_id)
 
 
 headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
@@ -18,7 +21,7 @@ headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 # Assign found Subnet to Tenant
 payload = {
    "spec":{
-      "name":"Subnet @@{tenant_prefix}@@",
+      "name":subnet_name,
       "resources":{
          "vswitch_name":"br0",
          "subnet_type":"VLAN",
@@ -40,7 +43,7 @@ payload = {
                ]
             }
          },
-         "vlan_id":@@{phpIPAM.vlan_number}@@,
+         "vlan_id":project_vlan_id,
          "virtual_switch_uuid":"eb87a234-6ed5-482c-9f80-5c531317437b"
       },
       "cluster_reference":{

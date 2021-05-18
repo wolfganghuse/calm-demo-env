@@ -55,7 +55,12 @@ BP_CRED_cred_PrismCentral = basic_cred(
 
 
 class Vault (Service):
-    pass
+    
+    vault_token = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+
 class phpIPAM(Service):
 
     vlan_id = CalmVariable.Simple(
@@ -196,6 +201,27 @@ class existing_PrismCentralDemo(Substrate):
 class pkg_Vault(Package):
     
     services = [ref(Vault)]
+
+    @action
+    def __install__():
+
+        CalmTask.Exec.escript(
+            name="Create Policy",
+            filename=os.path.join(
+                "scripts", "Package_pkg_Vault_Action___install___Task_CreatePolicy.py"
+            ),
+            target=ref(Vault)
+        )
+
+        CalmTask.SetVariable.escript(
+            name="Get Token",
+            filename=os.path.join(
+                "scripts", "Package_pkg_Vault_Action___install___Task_GetToken.py"
+            ),
+            target=ref(Vault),
+            variables=["vault_token"]
+        )
+
 class pkg_phpIPAM(Package):
 
     services = [ref(phpIPAM)]
@@ -379,15 +405,6 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
             variables=["subnet_uuid"],
-        )
-        CalmTask.SetVariable.escript(
-            name="Get Env Uuid",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_GetEnvUuid.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["environment_uuid"],
         )
         CalmTask.SetVariable.escript(
             name="Get User Uuid",

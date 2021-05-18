@@ -26,7 +26,7 @@ user_project_name = "@@{tenant_prefix}@@"
 #endregion
 
 #region define variables
-project_name = "{0}_VPC{1}_{2}".format(user_project_name,project_vlan_id,rand_num)
+project_name = "{0}_VPC{1}".format(user_project_name,project_vlan_id)
 max_vcpu = 4
 max_memory = 16*1073741824
 max_storage = 200*1073741824
@@ -98,10 +98,10 @@ payload = {
             "user_reference_list":[],
             "external_user_group_reference_list":[],
             "environment_reference_list": [
-               {
-                  "kind": "environment",
-                  "uuid": environment_uuid
-               }
+#               {
+#                  "kind": "environment",
+#                  "uuid": environment_uuid
+#               }
             ],
          }
       },
