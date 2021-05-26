@@ -113,7 +113,15 @@ class PrismCentralDemo(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
+    subnet_name = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
     project_uuid = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    project_name = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
@@ -387,24 +395,7 @@ class pkg_PrismCentralDemo(Package):
                 "Package_pkg_PrismCentralDemo_Action___install___Task_CreateTenantSubnet.py",
             ),
             target=ref(PrismCentralDemo),
-            variables=["task_uuid"],
-        )
-        CalmTask.Exec.escript(
-            name="MonitorVLAN",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_MonitorVLAN.py",
-            ),
-            target=ref(PrismCentralDemo),
-        )
-        CalmTask.SetVariable.escript(
-            name="Get Subnet UUID",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_GetSubnetUUID.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["subnet_uuid"],
+            variables=["subnet_uuid","subnet_name"],
         )
         CalmTask.SetVariable.escript(
             name="Get User Uuid",
@@ -422,24 +413,7 @@ class pkg_PrismCentralDemo(Package):
                 "Package_pkg_PrismCentralDemo_Action___install___Task_CreateProject.py",
             ),
             target=ref(PrismCentralDemo),
-            variables=["task_uuid"],
-        )
-        CalmTask.Exec.escript(
-            name="Monitor Project",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_MonitorProject.py",
-            ),
-            target=ref(PrismCentralDemo),
-        )
-        CalmTask.SetVariable.escript(
-            name="Get Project UUID",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_GetProjectUUID.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["project_uuid"],
+            variables=["project_uuid","project_name"],
         )
 
     @action

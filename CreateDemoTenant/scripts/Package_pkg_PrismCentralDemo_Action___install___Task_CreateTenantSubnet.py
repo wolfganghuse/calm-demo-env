@@ -9,7 +9,7 @@ tenant_subnet_split = tenant_subnet.split(".")
 tenant_dhcp_min = "{0}.{1}.{2}.{3}".format(tenant_subnet_split[0],tenant_subnet_split[1],tenant_subnet_split[2],int(tenant_subnet_split[3])+dhcp_min)
 tenant_dhcp_max = "{0}.{1}.{2}.{3}".format(tenant_subnet_split[0],tenant_subnet_split[1],tenant_subnet_split[2],int(tenant_subnet_split[3])+dhcp_max)
 user_project_name = "@@{tenant_prefix}@@"
-project_vlan_id = "@@{phpIPAM.vlan_number}@@"
+project_vlan_id = @@{phpIPAM.vlan_number}@@
 
 tenant_dhcp_range = "{0} {1}".format(tenant_dhcp_min,tenant_dhcp_max)
 subnet_name = "{0}_VPC{1}".format(user_project_name,project_vlan_id)
@@ -65,11 +65,18 @@ payload = {
         
 url = "https://@@{existing_PrismCentralDemo.address}@@:9440/api/nutanix/v3/subnets"
 resp = urlreq(url, verb='POST', params=json.dumps(payload), auth='BASIC', user="@@{cred_PCDemo.username}@@", passwd="@@{cred_PCDemo.secret}@@", headers=headers, verify=False)
+#region process the results
 if resp.ok:
-    print resp.content
-    print "task_uuid={0}".format(json.loads(resp.content)['status']['execution_context']['task_uuid'])
-
-# If the call failed
+   print json.dumps(json.loads(resp.content), indent=4)
+   print "subnet_name={0}".format(json.loads(resp.content)['spec']['name'])
+   print "subnet_uuid={0}".format(json.loads(resp.content)['metadata']['uuid'])
+   exit(0)
 else:
-        print("Call failed"), json.dumps(json.loads(resp.content), indent=4)
-        exit(1)
+    #api call failed
+    print("Request failed")
+    print("Headers: {}".format(headers))
+    print("Payload: {}".format(json.dumps(payload)))
+    print('Status code: {}'.format(resp.status_code))
+    print('Response: {}'.format(json.dumps(json.loads(resp.content), indent=4)))
+    exit(1)
+# endregion
