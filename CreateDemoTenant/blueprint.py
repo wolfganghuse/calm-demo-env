@@ -11,6 +11,7 @@ from calm.dsl.builtins import *  # no_qa
 
 
 # Secret Variables
+BP_CRED_cred_Vault_PASSWORD = read_local_file("BP_CRED_cred_Vault_PASSWORD")
 BP_CRED_cred_PCDemo_PASSWORD = read_local_file("BP_CRED_cred_PCDemo_PASSWORD")
 BP_CRED_cred_FortiGate_PASSWORD = read_local_file("BP_CRED_cred_FortiGate_PASSWORD")
 BP_CRED_cred_phpIPAM_PASSWORD = read_local_file("BP_CRED_cred_phpIPAM_PASSWORD")
@@ -19,6 +20,13 @@ BP_CRED_cred_PrismCentral_PASSWORD = read_local_file(
 )
 
 # Credentials
+BP_CRED_cred_Vault = basic_cred(
+    "root",
+    BP_CRED_cred_Vault_PASSWORD,
+    name="cred_Vault",
+    type="PASSWORD",
+    default=True,
+)
 BP_CRED_cred_PCDemo = basic_cred(
     "admin",
     BP_CRED_cred_PCDemo_PASSWORD,
@@ -44,6 +52,13 @@ BP_CRED_cred_PrismCentral = basic_cred(
     name="cred_PrismCentral",
     type="PASSWORD",
 )
+
+
+class Vault (Service):
+    
+    vault_token = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
 
 
 class phpIPAM(Service):
@@ -98,8 +113,43 @@ class PrismCentralDemo(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
+    subnet_name = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
     project_uuid = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    project_name = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    nutanix_calm_account_uuid = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    nutanix_calm_user_uuid = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+
+class existing_Vault(Substrate):
+
+
+    os_type = "Linux"
+    provider_type = "EXISTING_VM"
+    provider_spec = read_provider_spec(
+        os.path.join("specs", "existing_Vault_provider_spec.yaml")
+    )
+
+    readiness_probe = readiness_probe(
+        connection_type="SSH",
+        disabled=True,
+        retries="5",
+        connection_port=22,
+        address="@@{ip_address}@@",
+        delay_secs="60",
     )
 
 
@@ -155,6 +205,38 @@ class existing_PrismCentralDemo(Substrate):
         address="@@{ip_address}@@",
         delay_secs="60",
     )
+
+class pkg_Vault(Package):
+    
+    services = [ref(Vault)]
+
+    @action
+    def __install__():
+
+        CalmTask.Exec.escript(
+            name="Create Policy",
+            filename=os.path.join(
+                "scripts", "Package_pkg_Vault_Action___install___Task_CreatePolicy.py"
+            ),
+            target=ref(Vault)
+        )
+
+        CalmTask.SetVariable.escript(
+            name="Get Token",
+            filename=os.path.join(
+                "scripts", "Package_pkg_Vault_Action___install___Task_GetToken.py"
+            ),
+            target=ref(Vault),
+            variables=["vault_token"]
+        )
+        CalmTask.Exec.escript(
+            name="Write Vault",
+            filename=os.path.join(
+                "scripts",
+                "Package_pkg_Vault_Action___install___Task_WriteVault.py",
+            ),
+            target=ref(Vault)
+        )
 
 
 class pkg_phpIPAM(Package):
@@ -322,24 +404,25 @@ class pkg_PrismCentralDemo(Package):
                 "Package_pkg_PrismCentralDemo_Action___install___Task_CreateTenantSubnet.py",
             ),
             target=ref(PrismCentralDemo),
-            variables=["task_uuid"],
-        )
-        CalmTask.Exec.escript(
-            name="MonitorVLAN",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_MonitorVLAN.py",
-            ),
-            target=ref(PrismCentralDemo),
+            variables=["subnet_uuid","subnet_name"],
         )
         CalmTask.SetVariable.escript(
-            name="Get Subnet UUID",
+            name="Get User Uuid",
             filename=os.path.join(
                 "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_GetSubnetUUID.py",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_GetUserUuid.py",
             ),
             target=ref(PrismCentralDemo),
-            variables=["subnet_uuid"],
+            variables=["nutanix_calm_user_uuid"],
+        )
+        CalmTask.SetVariable.escript(
+            name="Get Account Uuid",
+            filename=os.path.join(
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_AccountUuid.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["nutanix_calm_account_uuid"],
         )
         CalmTask.SetVariable.escript(
             name="Create Project",
@@ -348,24 +431,7 @@ class pkg_PrismCentralDemo(Package):
                 "Package_pkg_PrismCentralDemo_Action___install___Task_CreateProject.py",
             ),
             target=ref(PrismCentralDemo),
-            variables=["task_uuid"],
-        )
-        CalmTask.Exec.escript(
-            name="Monitor Project",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_MonitorProject.py",
-            ),
-            target=ref(PrismCentralDemo),
-        )
-        CalmTask.SetVariable.escript(
-            name="Get Project UUID",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_GetProjectUUID.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["project_uuid"],
+            variables=["project_uuid","project_name"],
         )
 
     @action
@@ -437,10 +503,19 @@ class a6542720_deployment(Deployment):
     packages = [ref(pkg_PrismCentralDemo)]
     substrate = ref(existing_PrismCentralDemo)
 
+class Vault_deployment(Deployment):
+
+    min_replicas = "1"
+    max_replicas = "1"
+    default_replicas = "1"
+
+    packages = [ref(pkg_Vault)]
+    substrate = ref(existing_Vault)
+
 
 class Default(Profile):
 
-    deployments = [_0720591e_deployment, b6867c95_deployment, a6542720_deployment]
+    deployments = [_0720591e_deployment, b6867c95_deployment, a6542720_deployment, Vault_deployment]
 
     tenant_prefix = CalmVariable.Simple(
         "demo3",
@@ -481,13 +556,14 @@ class Default(Profile):
 
 class CreateDemoTenant(Blueprint):
 
-    services = [phpIPAM, Fortigate, PrismCentralDemo]
-    packages = [pkg_phpIPAM, pkg_Fortigate, pkg_PrismCentralDemo]
-    substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo]
+    services = [phpIPAM, Fortigate, PrismCentralDemo, Vault]
+    packages = [pkg_phpIPAM, pkg_Fortigate, pkg_PrismCentralDemo, pkg_Vault]
+    substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo, existing_Vault]
     profiles = [Default]
     credentials = [
         BP_CRED_cred_PCDemo,
         BP_CRED_cred_FortiGate,
         BP_CRED_cred_phpIPAM,
         BP_CRED_cred_PrismCentral,
+        BP_CRED_cred_Vault
     ]
