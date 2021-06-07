@@ -23,6 +23,8 @@ project_size = "medium"
 environment_uuid = "@@{environment_uuid}@@"
 #input from user
 user_project_name = "@@{tenant_prefix}@@"
+
+account_uuid = "@@{nutanix_calm_account_uuid}@@"
 #endregion
 
 #region define variables
@@ -97,6 +99,12 @@ payload = {
             },
             "user_reference_list":[],
             "external_user_group_reference_list":[],
+            "account_reference_list": [
+            {
+               "kind": "account",
+               "uuid": account_uuid
+            }
+            ],
             "environment_reference_list": [
 #               {
 #                  "kind": "environment",

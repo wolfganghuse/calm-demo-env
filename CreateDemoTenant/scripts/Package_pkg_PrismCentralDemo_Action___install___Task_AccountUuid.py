@@ -1,12 +1,21 @@
+
 #region capture Calm variables
-token = "@@{cred_Vault.secret}@@"
+username = '@@{cred_PCDemo.username}@@'
+username_secret = "@@{cred_PCDemo.secret}@@"
 api_server = "@@{address}@@"
+entity_name = "NTNX_LOCAL_AZ"
+
+#endregion
+
+#region define variables
+environment_uuids = []
 #endregion
 
 # region prepare api call
-api_server_port = "8200"
-api_server_endpoint = "/v1/auth/token/create"
-url = "http://{}:{}{}".format(
+api_server_port = "9440"
+api_server_endpoint = "/api/nutanix/v3/accounts/list"
+length = 100
+url = "https://{}:{}{}".format(
     api_server,
     api_server_port,
     api_server_endpoint
@@ -14,21 +23,21 @@ url = "http://{}:{}{}".format(
 method = "POST"
 headers = {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'X-Vault-Token':token
+    'Accept': 'application/json'
 }
 
 # Compose the json payload
-payload = {
-  "policies": ["@@{tenant_prefix}@@.rw"],
-  "renewable": True
-}# endregion
+payload = {"length": length}
+# endregion
 
 #region make the api call
 print("Making a {} API call to {}".format(method, url))
 resp = urlreq(
     url,
     verb=method,
+    auth='BASIC',
+    user=username,
+    passwd=username_secret,
     params=json.dumps(payload),
     headers=headers,
     verify=False
@@ -37,8 +46,11 @@ resp = urlreq(
 
 #region process the results
 if resp.ok:
-    print ("vault_token={0}".format(json.loads(resp.content)['auth']['client_token']))
-    exit(0)
+    json_resp = json.loads(resp.content)
+    for entity in json_resp["entities"]:
+        if entity["status"]["name"] == entity_name:
+            print ("nutanix_calm_account_uuid={}").format(entity["metadata"]["uuid"])
+            exit(0)
 else:
     # print the content of the response (which should have the error message)
     print("Request failed", json.dumps(

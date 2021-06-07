@@ -21,7 +21,7 @@ BP_CRED_cred_PrismCentral_PASSWORD = read_local_file(
 
 # Credentials
 BP_CRED_cred_Vault = basic_cred(
-    "demo-mgr-token",
+    "root",
     BP_CRED_cred_Vault_PASSWORD,
     name="cred_Vault",
     type="PASSWORD",
@@ -125,7 +125,7 @@ class PrismCentralDemo(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
-    environment_uuid = CalmVariable.Simple(
+    nutanix_calm_account_uuid = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
@@ -229,6 +229,15 @@ class pkg_Vault(Package):
             target=ref(Vault),
             variables=["vault_token"]
         )
+        CalmTask.Exec.escript(
+            name="Write Vault",
+            filename=os.path.join(
+                "scripts",
+                "Package_pkg_Vault_Action___install___Task_WriteVault.py",
+            ),
+            target=ref(Vault)
+        )
+
 
 class pkg_phpIPAM(Package):
 
@@ -405,6 +414,15 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
             variables=["nutanix_calm_user_uuid"],
+        )
+        CalmTask.SetVariable.escript(
+            name="Get Account Uuid",
+            filename=os.path.join(
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_AccountUuid.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["nutanix_calm_account_uuid"],
         )
         CalmTask.SetVariable.escript(
             name="Create Project",

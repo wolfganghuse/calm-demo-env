@@ -1,4 +1,4 @@
-exit (0)
+#exit (0)
 #region capture Calm variables
 token = "@@{cred_Vault.secret}@@"
 api_server = "@@{address}@@"
@@ -20,7 +20,9 @@ headers = {
 }
 
 # Compose the json payload
-payload = {"policy":"path \"secret/demo-env/@@{tenant_prefix}@@\" {capabilities = [\"list\",\"create\",\"read\",\"update\",\"delete\"]} "}
+#payload = {"policy":"path \"secret/demo-env/@@{tenant_prefix}@@\" {capabilities = [\"list\",\"create\",\"read\",\"update\",\"delete\"]} "}
+payload = {"policy":"path \"kv/data/tenants/@@{tenant_prefix}@@/*\" {\ncapabilities = [\"create\", \"update\", \"read\"]\n}\npath \"kv/delete/tenants/@@{tenant_prefix}@@/*\" {\ncapabilities = [\"delete\", \"update\"]\n}\npath \"kv/undelete/tenants/@@{tenant_prefix}@@/*\" {\ncapabilities = [\"update\"]\n}\npath \"kv/destroy/tenants/@@{tenant_prefix}@@/*\" {\ncapabilities = [\"update\"]\n}\npath \"kv/metadata/users/@@{tenant_prefix}@@/*\" {\ncapabilities = [\"list\", \"read\", \"delete\"]\n}\npath \"kv/metadata/\" {\ncapabilities = [\"list\"]\n}\npath \"kv/metadata/tenants/\" {\ncapabilities = [\"list\"]\n}\npath \"kv/data/shared/*\" {\ncapabilities = [\"read\"]\n}"}
+
 # endregion
 
 #region make the api call
