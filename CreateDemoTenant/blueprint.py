@@ -345,15 +345,27 @@ class pkg_PrismCentralDemo(Package):
                 "pkg_PrismCentralDemo__install__Task_CreateTenantSubnet.py",
             ),
             target=ref(PrismCentralDemo),
-            variables=["task_uuid"],
+            variables=["subnet_uuid","subnet_name"],
         )
-        CalmTask.Exec.escript(
-            name="MonitorVLAN",
+        
+        CalmTask.SetVariable.escript(
+            name="Get User uuid",
             filename=os.path.join(
                 "scripts",
-                "lib__Task_MonitorProgress.py",
+                "pkg_PrismCentralDemo__install__Task_GetUserUUID.py",
             ),
             target=ref(PrismCentralDemo),
+            variables=["nutanix_calm_user_uuid"]
+        )
+
+        CalmTask.SetVariable.escript(
+            name="GenerateUID",
+            filename=os.path.join(
+                "scripts",
+                "pkg_PrismCentralDemo__install__Task_GenerateUID.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["UID","ROLE_ADMIN_UUID","ROLE_OPERATOR_UUID"]
         )
 
         CalmTask.SetVariable.escript(
@@ -367,32 +379,73 @@ class pkg_PrismCentralDemo(Package):
         )
 
         CalmTask.SetVariable.escript(
+            name="getCloudAccount",
+            filename=os.path.join(
+                "scripts",
+                "pkg_PrismCentralDemo__install__Task_getCloudAccount.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["CLOUD_ACCOUNT_UUID","PC_ACCOUNT_UUID"]
+        )
+
+        CalmTask.SetVariable.escript(
             name="Create Project",
             filename=os.path.join(
                 "scripts",
                 "pkg_PrismCentralDemo__install__Task_CreateProject.py",
             ),
             target=ref(PrismCentralDemo),
-            variables=["task_uuid"],
-        )
-        CalmTask.Exec.escript(
-            name="Monitor Project",
-            filename=os.path.join(
-                "scripts",
-                "lib__Task_MonitorProgress.py",
-            ),
-            target=ref(PrismCentralDemo),
+            variables=["PROJECT_UUID","project_name"],
         )
 
         CalmTask.SetVariable.escript(
-            name="Get Project UUID",
+            name="Create Environment",
             filename=os.path.join(
                 "scripts",
-                "pkg_PrismCentralDemo__install__Task_GetProjectUUID.py",
+                "pkg_PrismCentralDemo__install__Task_CreateEnvironment.py",
             ),
             target=ref(PrismCentralDemo),
-            variables=["project_uuid"]
+            variables=["ENV_UUID"]
         )
+
+        CalmTask.SetVariable.escript(
+            name="CreateAdminGroup",
+            filename=os.path.join(
+                "scripts",
+                "pkg_PrismCentralDemo__install__Task_CreateAdminGroup.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["GROUP_ADMIN_UUID"]
+        )
+
+        CalmTask.SetVariable.escript(
+            name="CreateOperatorGroup",
+            filename=os.path.join(
+                "scripts",
+                "pkg_PrismCentralDemo__install__Task_CreateOperatorGroup.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["GROUP_OPERATOR_UUID"]
+        )
+
+        CalmTask.Exec.escript(
+            name="updateProject",
+            filename=os.path.join(
+                "scripts",
+                "pkg_PrismCentralDemo__install__Task_updateProject.py",
+            ),
+            target=ref(PrismCentralDemo)
+        )
+
+        CalmTask.Exec.escript(
+            name="EntitleMktBp",
+            filename=os.path.join(
+                "scripts",
+                "pkg_PrismCentralDemo__install__Task_EntitleMktBp.py",
+            ),
+            target=ref(PrismCentralDemo)
+        )
+
 
     @action
     def __uninstall__():
@@ -432,9 +485,17 @@ class pkg_PrismCentralDemo(Package):
         )
 
         CalmTask.Exec.escript(
-            name="Monitor Subnet Delete",
+            name="DeleteAdminGroup",
             filename=os.path.join(
-                "scripts", "Package_Package3_Action___uninstall___Task_MonitorSubnetDelete.py"
+                "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteAdminGroup.py"
+            ),
+            target=ref(PrismCentralDemo),
+        )
+
+        CalmTask.Exec.escript(
+            name="DeleteOperatorGroup",
+            filename=os.path.join(
+                "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteOperatorGroup.py"
             ),
             target=ref(PrismCentralDemo),
         )
