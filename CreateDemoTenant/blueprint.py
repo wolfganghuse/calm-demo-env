@@ -269,6 +269,22 @@ class pkg_Fortigate(Package):
                 target=ref(Fortigate)
         )
 
+        CalmTask.SetVariable.escript(
+            name="Create Basic Rules Incoming",
+            filename=os.path.join(
+                "scripts","pkg_Fortigate__install__Task_Create_Incoming_Rules.py"),
+                variables=["fortigate_in_id"],
+                target=ref(Fortigate)
+        )
+
+        CalmTask.SetVariable.escript(
+            name="Create Basic Rules Outgoing",
+            filename=os.path.join(
+                "scripts","pkg_Fortigate__install__Task_Create_Outgoing_Rules.py"),
+                variables=["fortigate_out_id"],
+                target=ref(Fortigate)
+        )
+
     @action
     def __uninstall__():
 
@@ -393,8 +409,7 @@ class pkg_PrismCentralDemo(Package):
             filename=os.path.join(
                 "scripts", "lib__Task_MonitorProgress.py"
             ),
-            target=ref(PrismCentralDemo),
-            variables=["task_uuid"]
+            target=ref(PrismCentralDemo)
         )
 
         CalmTask.Exec.escript(
