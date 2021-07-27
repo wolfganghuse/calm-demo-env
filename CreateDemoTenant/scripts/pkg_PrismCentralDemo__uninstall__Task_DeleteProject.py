@@ -1,7 +1,7 @@
 headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 
 # Set the address and make cluster/list call
-url = "https://@@{PrismCentralDemo.address}@@:9440/api/nutanix/v3/projects/@@{project_uuid}@@"
+url = "https://@@{PrismCentralDemo.address}@@:9440/api/nutanix/v3/projects/@@{PROJECT_UUID}@@"
 resp = urlreq(url, verb='DELETE', user="@@{cred_PCDemo.username}@@", passwd="@@{cred_PCDemo.secret}@@", auth='BASIC', headers=headers, verify=False)
 
 # If the call went through successfully, check the progress

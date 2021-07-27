@@ -1,6 +1,6 @@
 #script
 jwt = '@@{calm_jwt}@@'
-Distinguished_Name = '@@{existing_AD.Distinguished_Name}@@'
+Distinguished_Name = '@@{TenantAD.Distinguished_Name}@@'
 
 # Get PC IP and PE uuid
 api_url = 'https://localhost:9440/api/nutanix/v3/user_groups'

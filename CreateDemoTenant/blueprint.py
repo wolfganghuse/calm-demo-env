@@ -17,6 +17,9 @@ BP_CRED_cred_phpIPAM_PASSWORD = read_local_file("BP_CRED_cred_phpIPAM_PASSWORD")
 BP_CRED_cred_PrismCentral_PASSWORD = read_local_file(
     "BP_CRED_cred_PrismCentral_PASSWORD"
 )
+BP_CRED_cred_TenantAD_PASSWORD = read_local_file(
+    "BP_CRED_cred_PrismCentral_PASSWORD"
+)
 
 # Credentials
 BP_CRED_cred_PCDemo = basic_cred(
@@ -44,7 +47,12 @@ BP_CRED_cred_PrismCentral = basic_cred(
     name="cred_PrismCentral",
     type="PASSWORD",
 )
-
+BP_CRED_cred_TenantAD = basic_cred(
+    "wolfgang@ntnx.test",
+    BP_CRED_cred_TenantAD_PASSWORD,
+    name="cred_TenantAD",
+    type="PASSWORD",
+)
 
 class phpIPAM(Service):
 
@@ -94,7 +102,15 @@ class Fortigate(Service):
 
 class PrismCentralDemo(Service):
 
+    ENV_UUID = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
     task_uuid = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    nutanix_calm_user_uuid = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
@@ -102,10 +118,63 @@ class PrismCentralDemo(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
-    project_uuid = CalmVariable.Simple(
+    subnet_name = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
+    PROJECT_UUID = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    project_name = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    nutanix_calm_account_uuid = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    nutanix_calm_user_uuid = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    UID = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    CLOUD_ACCOUNT_UUID = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    PC_ACCOUNT_UUID = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    ROLE_ADMIN_UUID = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    ROLE_OPERATOR_UUID = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    GROUP_ADMIN_UUID = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    GROUP_OPERATOR_UUID = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+class TenantAD(Service):
+
+    Distinguished_Name = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    AD_PATH = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
 
 
 class existing_phpIPAM(Substrate):
@@ -157,6 +226,23 @@ class existing_PrismCentralDemo(Substrate):
         disabled=True,
         retries="5",
         connection_port=22,
+        address="@@{ip_address}@@",
+        delay_secs="60",
+    )
+
+class existing_TenantAD(Substrate):
+
+    os_type = "Windows"
+    provider_type = "EXISTING_VM"
+    provider_spec = read_provider_spec(
+        os.path.join("specs", "existing_TenantAD_provider_spec.yaml")
+    )
+
+    readiness_probe = readiness_probe(
+        connection_type="POWERSHELL",
+        disabled=True,
+        retries="5",
+        connection_port=5985,
         address="@@{ip_address}@@",
         delay_secs="60",
     )
@@ -243,6 +329,54 @@ class pkg_phpIPAM(Package):
             target=ref(phpIPAM),
         )
 
+class pkg_TenantAD(Package):
+
+    services = [ref(TenantAD)]
+
+    @action
+    def __install__():
+    
+        CalmTask.SetVariable.escript(
+            name="create_ADPath",
+            filename=os.path.join(
+                "scripts", "Service_TenantAD_Action___create___Task_create_ADPath.py"
+            ),
+            target=ref(TenantAD),
+            variables=["AD_PATH"],
+        )
+
+        CalmTask.Exec.powershell(
+            name="CreateTenantOU",
+            filename=os.path.join(
+                "scripts", "Service_TenantAD_Action___create___Task_CreateTenantOU.py"
+            ),
+            cred=ref(BP_CRED_cred_TenantAD),
+            target=ref(TenantAD)
+        )
+
+        CalmTask.SetVariable.escript(
+            name="SetOUPath",
+            filename=os.path.join(
+                "scripts", "Service_TenantAD_Action___create___Task_SetOUPath.py"
+            ),
+            target=ref(TenantAD),
+            variables=["Distinguished_Name"],
+        )
+
+
+    @action
+    def __uninstall__():
+
+        CalmTask.Exec.powershell(
+            name="DeleteTenantOU",
+            filename=os.path.join(
+                "scripts", "pkg_TenantAD__uninstall__Task_DeleteTenantOU.py"
+            ),
+            cred=ref(BP_CRED_cred_TenantAD),
+            target=ref(TenantAD),
+        )
+
+
 
 class pkg_Fortigate(Package):
 
@@ -328,8 +462,6 @@ class pkg_Fortigate(Package):
                 "scripts","pkg_Fortigate__uninstall__Task_DeleteVLANInterface.py"),
                 target=ref(Fortigate)
         )
-
-        
 
 class pkg_PrismCentralDemo(Package):
 
@@ -500,10 +632,6 @@ class pkg_PrismCentralDemo(Package):
             target=ref(PrismCentralDemo),
         )
 
-
-
-
-
 class _0720591e_deployment(Deployment):
 
     name = "0720591e_deployment"
@@ -513,6 +641,16 @@ class _0720591e_deployment(Deployment):
 
     packages = [ref(pkg_phpIPAM)]
     substrate = ref(existing_phpIPAM)
+
+class TenantAD_deployment(Deployment):
+
+    name = "TenantAD_deployment"
+    min_replicas = "1"
+    max_replicas = "1"
+    default_replicas = "1"
+
+    packages = [ref(pkg_TenantAD)]
+    substrate = ref(existing_TenantAD)
 
 
 class b6867c95_deployment(Deployment):
@@ -537,14 +675,96 @@ class a6542720_deployment(Deployment):
 
 class Default(Profile):
 
-    deployments = [_0720591e_deployment, b6867c95_deployment, a6542720_deployment]
+    deployments = [_0720591e_deployment, b6867c95_deployment, a6542720_deployment, TenantAD_deployment]
 
-    tenant_prefix = CalmVariable.Simple(
+    PASSWORD = CalmVariable.Simple(
+        "nutanix/4u",
+        label="username password",
+        is_mandatory=False,
+        is_hidden=False,
+        runtime=True,
+        description="",
+    )
+
+    USERID = CalmVariable.Simple(
+        "OrgAdmin User",
+        label="Admin User",
+        is_mandatory=False,
+        is_hidden=False,
+        runtime=True,
+        description="",
+    )
+
+    LAST_NAME = CalmVariable.Simple(
+        "Smith",
+        label="Admin Last Name",
+        is_mandatory=False,
+        is_hidden=False,
+        runtime=True,
+        description="",
+    )
+
+    FIRST_NAME = CalmVariable.Simple(
+        "John",
+        label="Admin First Name",
+        is_mandatory=False,
+        is_hidden=False,
+        runtime=True,
+        description="",
+    )
+
+    ROOT_OU = CalmVariable.Simple(
+        "Tenants",
+        label="",
+        is_mandatory=False,
+        is_hidden=False,
+        runtime=False,
+        description="",
+    )
+
+    DOMAIN = CalmVariable.Simple(
+        "ntnx.test",
+        label="",
+        is_mandatory=False,
+        is_hidden=False,
+        runtime=False,
+        description="",
+    )
+
+    ROLE_OPERATOR = CalmVariable.Simple(
+        "Operator",
+        label="",
+        is_mandatory=False,
+        is_hidden=False,
+        runtime=False,
+        description="",
+    )
+
+    ROLE_ADMIN = CalmVariable.Simple(
         "demo3",
         label="Tenant ID",
         is_mandatory=False,
         is_hidden=False,
+        runtime=False,
+        description="",
+    )
+
+    tenant_prefix = CalmVariable.Simple(
+        "Consumer",
+        label="Tenant ID",
+        is_mandatory=False,
+        is_hidden=False,
         runtime=True,
+        description="",
+    )
+
+
+    ENV_PASSWORD = CalmVariable.Simple(
+        "nutanix/4u",
+        label="",
+        is_mandatory=False,
+        is_hidden=False,
+        runtime=False,
         description="",
     )
 
@@ -578,13 +798,14 @@ class Default(Profile):
 
 class CreateDemoTenant(Blueprint):
 
-    services = [phpIPAM, Fortigate, PrismCentralDemo]
-    packages = [pkg_phpIPAM, pkg_Fortigate, pkg_PrismCentralDemo]
-    substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo]
+    services = [phpIPAM, Fortigate, PrismCentralDemo, TenantAD]
+    packages = [pkg_phpIPAM, pkg_Fortigate, pkg_PrismCentralDemo, pkg_TenantAD]
+    substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo, existing_TenantAD]
     profiles = [Default]
     credentials = [
         BP_CRED_cred_PCDemo,
         BP_CRED_cred_FortiGate,
         BP_CRED_cred_phpIPAM,
         BP_CRED_cred_PrismCentral,
+        BP_CRED_cred_TenantAD
     ]
