@@ -82,10 +82,15 @@ class Fortigate(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
+   fortigate_in_id = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+   fortigate_out_id = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
    interface_name = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
-
 
 class PrismCentralDemo(Service):
 
