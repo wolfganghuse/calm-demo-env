@@ -1,4 +1,7 @@
-jwt = '@@{calm_jwt}@@'
+username = "@@{cred_PCDemo.username}@@"
+username_secret = "@@{cred_PCDemo.secret}@@"
+pc_address = "@@{address}@@"
+
 MARKET_PREFIX = '{"values": ["CST"]}'
 projUuid = '@@{PROJECT_UUID}@@'
 projName = '@@{project_name}@@'
@@ -8,8 +11,7 @@ projName = '@@{project_name}@@'
 def http_request(api_endpoint, payload='', method='POST'):
   headers = {
     'Content-Type': 'application/json', 
-    'Accept': 'application/json', 
-    'Authorization': 'Bearer {}'.format(jwt)
+    'Accept': 'application/json'
   }
 
 
@@ -24,6 +26,7 @@ def http_request(api_endpoint, payload='', method='POST'):
       url,
       verb=method,
       params=payload,
+      auth='BASIC', user="@@{cred_PCDemo.username}@@", passwd="@@{cred_PCDemo.secret}@@",
       headers=headers,
       verify=False
   )

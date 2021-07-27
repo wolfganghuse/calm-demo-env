@@ -1,5 +1,8 @@
 #script
-jwt = '@@{calm_jwt}@@'
+username = "@@{cred_PCDemo.username}@@"
+username_secret = "@@{cred_PCDemo.secret}@@"
+pc_address = "@@{address}@@"
+
 ROLE_ADMIN = '@@{ROLE_ADMIN}@@'
 ROLE_OPERATOR = '@@{ROLE_OPERATOR}@@'
 DOMAIN = '@@{DOMAIN}@@'
@@ -9,13 +12,13 @@ ROOT_OU = '@@{ROOT_OU}@@'
 # -----------------------------------------------------------
 def get_role_uuid(role_name):
   api_url = 'https://localhost:9440/api/nutanix/v3/roles/list'
-  headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer {}'.format(jwt)}
+  headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
   payload = {
       'filter': 'name=={}'.format(role_name),
       'kind': 'role',
       'offset': 0
   }
-  r = urlreq(api_url, verb='POST', params=json.dumps(payload), headers=headers, verify=False)
+  r = urlreq(api_url, verb='POST', params=json.dumps(payload),auth='BASIC', user="@@{cred_PCDemo.username}@@", passwd="@@{cred_PCDemo.secret}@@", headers=headers, verify=False)
   result = json.loads(r.content)
   if result['entities']:
       return result['entities'][0]['metadata']['uuid']

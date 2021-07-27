@@ -741,8 +741,8 @@ class Default(Profile):
     )
 
     ROLE_ADMIN = CalmVariable.Simple(
-        "demo3",
-        label="Tenant ID",
+        "Consumer",
+        label="",
         is_mandatory=False,
         is_hidden=False,
         runtime=False,
@@ -750,7 +750,7 @@ class Default(Profile):
     )
 
     tenant_prefix = CalmVariable.Simple(
-        "Consumer",
+        "Demo3",
         label="Tenant ID",
         is_mandatory=False,
         is_hidden=False,

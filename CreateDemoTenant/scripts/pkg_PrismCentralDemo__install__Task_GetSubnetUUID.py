@@ -1,15 +1,46 @@
-headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+task_uuid = "@@{task_uuid}@@"
+username = "@@{cred_PCDemo.username}@@"
+username_secret = "@@{cred_PCDemo.secret}@@"
+api_server = "@@{address}@@"
+api_server_port = "9440"
+api_server_endpoint = "/api/nutanix/v3/tasks/{}".format(task_uuid)
 
-# Set the address and make cluster/list call
-url = "https://@@{address}@@:9440/api/nutanix/v3/tasks/@@{task_uuid}@@"
-resp = urlreq(url, verb='GET', user="@@{cred_PCDemo.username}@@", passwd="@@{cred_PCDemo.secret}@@", auth='BASIC', headers=headers, verify=False)
+length = 100
+url = "https://{}:{}{}".format(
+    api_server,
+    api_server_port,
+    api_server_endpoint
+)
+
+headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+method ="GET"
+
+#region make the api call
+print("Making a {} API call to {}".format(method, url))
+r = urlreq(
+    url,
+    verb=method,
+    auth='BASIC',
+    user=username,
+    passwd=username_secret,
+    headers=headers,
+    verify=False
+)
+# endregion
 
 # If the call went through successfully, check the progress
-if resp.ok:
-  if (json.loads(resp.content)['status'] == "SUCCEEDED"):
-    print("subnet_uuid={}".format(json.loads(resp.content)['entity_reference_list'][0]['uuid']))
+if r.ok:
+  if (json.loads(r.content)['status'] == "SUCCEEDED"):
+    print("subnet_uuid={}".format(json.loads(r.content)['entity_reference_list'][0]['uuid']))
     exit(0)
 # If the call failed
 else:
-  print "Subnet UUID call failed", json.dumps(json.loads(resp.content), indent=4)
-  exit(1)
+    # print the content of the response (which should have the error message)
+    print("Request failed", json.dumps(
+        json.loads(r.content),
+        indent=4
+    ))
+    print("Headers: {}".format(headers))
+    print("Payload: {}".format(payload))
+    exit(1)
+# endregion

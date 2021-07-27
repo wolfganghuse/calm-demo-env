@@ -1,15 +1,45 @@
-headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+username = "@@{cred_PCDemo.username}@@"
+username_secret = "@@{cred_PCDemo.secret}@@"
+subnet_uuid = "@@{subnet_uuid}@@"
+api_server = "@@{address}@@"
+api_server_port = "9440"
+api_server_endpoint = "/api/nutanix/v3/subnets/{}".format(subnet_uuid)
 
-# Set the address and make cluster/list call
-url = "https://@@{PrismCentralDemo.address}@@:9440/api/nutanix/v3/subnets/@@{subnet_uuid}@@"
-resp = urlreq(url, verb='DELETE', user="@@{cred_PCDemo.username}@@", passwd="@@{cred_PCDemo.secret}@@", auth='BASIC', headers=headers, verify=False)
+length = 100
+url = "https://{}:{}{}".format(
+    api_server,
+    api_server_port,
+    api_server_endpoint
+)
+headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+method = "DELETE"
+
+#region make the api call
+print("Making a {} API call to {}".format(method, url))
+r = urlreq(
+    url,
+    verb=method,
+    auth='BASIC',
+    user=username,
+    passwd=username_secret,
+    headers=headers,
+    verify=False
+)
+# endregion
 
 # If the call went through successfully, check the progress
-if resp.ok:
-    print resp.content
-    print "task_uuid={0}".format(json.loads(resp.content)['status']['execution_context']['task_uuid'])
+if r.ok:
+    print r.content
+    print "task_uuid={0}".format(json.loads(r.content)['status']['execution_context']['task_uuid'])
 
 # If the call failed
 else:
-        print("Call failed"), json.dumps(json.loads(resp.content), indent=4)
-        exit(1)
+    # print the content of the response (which should have the error message)
+    print("Request failed", json.dumps(
+        json.loads(r.content),
+        indent=4
+    ))
+    print("Headers: {}".format(headers))
+    print("Payload: {}".format(payload))
+    exit(1)
+# endregion

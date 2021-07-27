@@ -187,6 +187,14 @@ r = urlreq(
 if r.ok:
     exit(0)
 
+# If the call failed
 else:
-    print("Post request failed", r.content)
+    # print the content of the response (which should have the error message)
+    print("Request failed", json.dumps(
+        json.loads(r.content),
+        indent=4
+    ))
+    print("Headers: {}".format(headers))
+    print("Payload: {}".format(payload))
     exit(1)
+# endregion

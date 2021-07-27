@@ -1,5 +1,6 @@
 #script
-jwt = '@@{calm_jwt}@@'
+username = "@@{cred_PCDemo.username}@@"
+username_secret = "@@{cred_PCDemo.secret}@@"
 envuuid = "@@{UID}@@"
 nameuuid = "@@{UID}@@"
 cloudAccountUuid = "@@{CLOUD_ACCOUNT_UUID}@@"
@@ -18,7 +19,7 @@ url = "https://{}:{}{}".format(
     api_server_endpoint
 )
 method = "POST"
-headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer {}'.format(jwt)}
+headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 
 
 subnet_references = []
@@ -240,7 +241,9 @@ print("Making a {} API call to {}".format(method, url))
 r = urlreq(
     url,
     verb=method,
-    params=json.dumps(payload),
+    auth='BASIC',
+    user=username,
+    passwd=username_secret,
     headers=headers,
     verify=False
 )
@@ -250,15 +253,12 @@ if r.ok:
     resp = json.loads(r.content)
     print("ENV_UUID={}".format(resp['metadata']['uuid']))
 else:
-    print("Post request failed", r.content)
+    # print the content of the response (which should have the error message)
+    print("Request failed", json.dumps(
+        json.loads(r.content),
+        indent=4
+    ))
+    print("Headers: {}".format(headers))
+    print("Payload: {}".format(payload))
     exit(1)
-    
-    
-if r.ok:
-    print r.content
-    exit(0)
-
-else:
-    print("Post request failed", json.loads(r.content))
-    print("Payload", json.dumps(payload))
-    exit(1)
+# endregion
