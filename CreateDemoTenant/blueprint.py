@@ -297,6 +297,20 @@ class pkg_Fortigate(Package):
         )
 
         CalmTask.Exec.escript(
+            name="Delete Outgoing",
+            filename=os.path.join(
+                "scripts","pkg_Fortigate__uninstall__Task_Delete_Outgoing_Rules.py"),
+                target=ref(Fortigate)
+        )
+
+        CalmTask.Exec.escript(
+            name="Delete Incoming",
+            filename=os.path.join(
+                "scripts","pkg_Fortigate__uninstall__Task_Delete_Incoming_Rules.py"),
+                target=ref(Fortigate)
+        )
+
+        CalmTask.Exec.escript(
             name="Delete Address Object",
             filename=os.path.join(
                 "scripts","pkg_Fortigate__uninstall__Task_DeleteAddress.py"),
