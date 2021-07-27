@@ -44,8 +44,8 @@ payload = {
                         "disk_list": [{
                             "data_source_reference": {
                                 "kind": "image",
-                                "name": "Template_CentOS-7",
-                                "uuid": "3b6c46f5-0ac0-4bab-8603-90ff9095066c"
+                                "name": "CentOS7",
+                                "uuid": "7241ee32-dae1-43c0-8c3c-3e697325dcd9"
                             },
                             "device_properties": {
                                 "device_type": "DISK",
@@ -107,8 +107,8 @@ payload = {
                         "disk_list": [{
                             "data_source_reference": {
                                 "kind": "image",
-                                "name": "Template_CentOS-7",
-                                "uuid": "3b6c46f5-0ac0-4bab-8603-90ff9095066c"
+                                "name": "Windows2016",
+                                "uuid": "c046f2c4-49c5-4cb7-a7f5-ce1dcc628d15"
                             },
                             "device_properties": {
                                 "device_type": "DISK",
@@ -178,7 +178,7 @@ payload = {
                         "attrs": {
                             "is_secret_modified": True
                         },
-                        "value": "YNCntnx2021!"
+                        "value": "nutanix/4u"
                     },
                     "type": "PASSWORD",
                     "name": "PE_Creds",
@@ -190,7 +190,7 @@ payload = {
                         "attrs": {
                             "is_secret_modified": True
                         },
-                        "value": "YNCntnx2021!"
+                        "value": "nutanix/4u"
                     },
                     "type": "PASSWORD",
                     "name": "PC_Creds",
@@ -244,6 +244,7 @@ r = urlreq(
     auth='BASIC',
     user=username,
     passwd=username_secret,
+    params=json.dumps(payload),
     headers=headers,
     verify=False
 )

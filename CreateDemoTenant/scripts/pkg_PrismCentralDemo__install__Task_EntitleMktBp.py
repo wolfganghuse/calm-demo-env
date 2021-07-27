@@ -15,7 +15,7 @@ def http_request(api_endpoint, payload='', method='POST'):
   }
 
 
-  url = "https://localhost:9440{}".format(api_endpoint)
+  url = "https://@@{address}@@:9440{}".format(api_endpoint)
 
   
   if len(payload) > 0:

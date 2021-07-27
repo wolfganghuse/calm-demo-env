@@ -43,6 +43,5 @@ else:
         indent=4
     ))
     print("Headers: {}".format(headers))
-    print("Payload: {}".format(payload))
     exit(1)
 # endregion

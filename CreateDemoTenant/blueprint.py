@@ -501,16 +501,6 @@ class pkg_PrismCentralDemo(Package):
         )
 
         CalmTask.SetVariable.escript(
-            name="Get Subnet UUID",
-            filename=os.path.join(
-                "scripts",
-                "pkg_PrismCentralDemo__install__Task_GetSubnetUUID.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["subnet_uuid"]
-        )
-
-        CalmTask.SetVariable.escript(
             name="getCloudAccount",
             filename=os.path.join(
                 "scripts",
@@ -687,7 +677,7 @@ class Default(Profile):
     )
 
     USERID = CalmVariable.Simple(
-        "OrgAdmin User",
+        "OrgAdmin",
         label="Admin User",
         is_mandatory=False,
         is_hidden=False,

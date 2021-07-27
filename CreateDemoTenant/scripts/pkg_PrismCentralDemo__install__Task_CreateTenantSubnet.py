@@ -57,12 +57,12 @@ payload = {
             }
          },
          "vlan_id":project_vlan_id,
-         "virtual_switch_uuid":"e777f435-ccd4-405f-bcff-108ff6dcff49"
+         "virtual_switch_uuid":"eb87a234-6ed5-482c-9f80-5c531317437b"
       },
       "cluster_reference":{
          "kind":"cluster",
-         "name":"YNC-POC",
-         "uuid":"0005c56b-b51d-f36f-4e1b-ac1f6b35f44a"
+         "name":"NTNX-DEMO01",
+         "uuid":"0005c16a-854c-d5b0-30dd-ac1f6bcd62c7"
       }
    },
    "metadata":{
@@ -83,6 +83,7 @@ r = urlreq(
     auth='BASIC',
     user=username,
     passwd=username_secret,
+    params=json.dumps(payload),
     headers=headers,
     verify=False
 )
