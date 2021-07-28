@@ -30,7 +30,7 @@ def fortigate_create_Address(api_server, api_server_port, fortigate_csrf_token, 
     "name": name+" Outgoing",
     "dstintf":[
           {
-            "name": "port2"
+            "name": "port1"
           }
     ],
     "srcintf":[
