@@ -1,3 +1,6 @@
+username = "@@{cred_PCDemo.username}@@"
+username_secret = "@@{cred_PCDemo.secret}@@"
+
 #Calculate needed Addresses
 dhcp_min = 100
 dhcp_max = 200
@@ -14,9 +17,19 @@ project_vlan_id = @@{phpIPAM.vlan_number}@@
 tenant_dhcp_range = "{0} {1}".format(tenant_dhcp_min,tenant_dhcp_max)
 subnet_name = "{0}_VPC{1}".format(user_project_name,project_vlan_id)
 
+api_server = "@@{address}@@"
+api_server_port = "9440"
+api_server_endpoint = "/api/nutanix/v3/subnets"
+
+length = 100
+url = "https://{}:{}{}".format(
+    api_server,
+    api_server_port,
+    api_server_endpoint
+)
 
 headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-
+method = "POST"
 
 # Assign found Subnet to Tenant
 payload = {
@@ -39,7 +52,7 @@ payload = {
             "subnet_ip":tenant_subnet,
             "dhcp_options":{
                "domain_name_server_list":[
-                  tenant_gw_ip
+                  "8.8.8.8"
                ]
             }
          },
@@ -62,21 +75,34 @@ payload = {
       }
    }
 }
-        
-url = "https://@@{existing_PrismCentralDemo.address}@@:9440/api/nutanix/v3/subnets"
-resp = urlreq(url, verb='POST', params=json.dumps(payload), auth='BASIC', user="@@{cred_PCDemo.username}@@", passwd="@@{cred_PCDemo.secret}@@", headers=headers, verify=False)
+#region make the api call
+print("Making a {} API call to {}".format(method, url))
+r = urlreq(
+    url,
+    verb=method,
+    auth='BASIC',
+    user=username,
+    passwd=username_secret,
+    params=json.dumps(payload),
+    headers=headers,
+    verify=False
+)
+# endregion
+
 #region process the results
-if resp.ok:
-   print json.dumps(json.loads(resp.content), indent=4)
-   print "subnet_name={0}".format(json.loads(resp.content)['spec']['name'])
-   print "subnet_uuid={0}".format(json.loads(resp.content)['metadata']['uuid'])
+if r.ok:
+   print json.dumps(json.loads(r.content), indent=4)
+   print "subnet_name={0}".format(json.loads(r.content)['spec']['name'])
+   print "subnet_uuid={0}".format(json.loads(r.content)['metadata']['uuid'])
    exit(0)
+# If the call failed
 else:
-    #api call failed
-    print("Request failed")
+    # print the content of the response (which should have the error message)
+    print("Request failed", json.dumps(
+        json.loads(r.content),
+        indent=4
+    ))
     print("Headers: {}".format(headers))
-    print("Payload: {}".format(json.dumps(payload)))
-    print('Status code: {}'.format(resp.status_code))
-    print('Response: {}'.format(json.dumps(json.loads(resp.content), indent=4)))
+    print("Payload: {}".format(payload))
     exit(1)
 # endregion
