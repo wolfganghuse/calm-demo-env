@@ -11,6 +11,7 @@ from calm.dsl.builtins import *  # no_qa
 
 
 # Secret Variables
+BP_CRED_cred_Vault_PASSWORD = read_local_file("BP_CRED_cred_Vault_PASSWORD")
 BP_CRED_cred_PCDemo_PASSWORD = read_local_file("BP_CRED_cred_PCDemo_PASSWORD")
 BP_CRED_cred_FortiGate_PASSWORD = read_local_file("BP_CRED_cred_FortiGate_PASSWORD")
 BP_CRED_cred_phpIPAM_PASSWORD = read_local_file("BP_CRED_cred_phpIPAM_PASSWORD")
@@ -22,6 +23,13 @@ BP_CRED_cred_TenantAD_PASSWORD = read_local_file(
 )
 
 # Credentials
+BP_CRED_cred_Vault = basic_cred(
+    "root",
+    BP_CRED_cred_Vault_PASSWORD,
+    name="cred_Vault",
+    type="PASSWORD",
+    default=True,
+)
 BP_CRED_cred_PCDemo = basic_cred(
     "admin",
     BP_CRED_cred_PCDemo_PASSWORD,
@@ -54,6 +62,13 @@ BP_CRED_cred_TenantAD = basic_cred(
     type="PASSWORD",
 )
 
+class Vault (Service):
+    
+    vault_token = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+
 class phpIPAM(Service):
 
     vlan_id = CalmVariable.Simple(
@@ -80,13 +95,14 @@ class phpIPAM(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
+
 class Fortigate(Service):
 
-   fortigate_csrf_token = CalmVariable.Simple(
+    fortigate_csrf_token = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
-   fortigate_cookie = CalmVariable.Simple(
+    fortigate_cookie = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
@@ -122,6 +138,7 @@ class PrismCentralDemo(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
+<<<<<<< HEAD
     PROJECT_UUID = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
@@ -175,6 +192,42 @@ class TenantAD(Service):
     AD_PATH = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
+=======
+    project_uuid = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    project_name = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    nutanix_calm_account_uuid = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+    nutanix_calm_user_uuid = CalmVariable.Simple(
+        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
+    )
+
+
+class existing_Vault(Substrate):
+
+
+    os_type = "Linux"
+    provider_type = "EXISTING_VM"
+    provider_spec = read_provider_spec(
+        os.path.join("specs", "existing_Vault_provider_spec.yaml")
+    )
+
+    readiness_probe = readiness_probe(
+        connection_type="SSH",
+        disabled=True,
+        retries="5",
+        connection_port=22,
+        address="@@{ip_address}@@",
+        delay_secs="60",
+    )
+>>>>>>> main
 
 
 class existing_phpIPAM(Substrate):
@@ -230,6 +283,7 @@ class existing_PrismCentralDemo(Substrate):
         delay_secs="60",
     )
 
+<<<<<<< HEAD
 class existing_TenantAD(Substrate):
 
     os_type = "Windows"
@@ -246,6 +300,39 @@ class existing_TenantAD(Substrate):
         address="@@{ip_address}@@",
         delay_secs="60",
     )
+=======
+class pkg_Vault(Package):
+    
+    services = [ref(Vault)]
+
+    @action
+    def __install__():
+
+        CalmTask.Exec.escript(
+            name="Create Policy",
+            filename=os.path.join(
+                "scripts", "Package_pkg_Vault_Action___install___Task_CreatePolicy.py"
+            ),
+            target=ref(Vault)
+        )
+
+        CalmTask.SetVariable.escript(
+            name="Get Token",
+            filename=os.path.join(
+                "scripts", "Package_pkg_Vault_Action___install___Task_GetToken.py"
+            ),
+            target=ref(Vault),
+            variables=["vault_token"]
+        )
+        CalmTask.Exec.escript(
+            name="Write Vault",
+            filename=os.path.join(
+                "scripts",
+                "Package_pkg_Vault_Action___install___Task_WriteVault.py",
+            ),
+            target=ref(Vault)
+        )
+>>>>>>> main
 
 
 class pkg_phpIPAM(Package):
@@ -254,11 +341,11 @@ class pkg_phpIPAM(Package):
 
     @action
     def __install__():
-    
+
         CalmTask.SetVariable.escript(
             name="Get free VLAN",
             filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetfreeVLAN.py"
+                "scripts", "Package_pkg_phpIPAM_Action___install___Task_GetfreeVLAN.py"
             ),
             target=ref(phpIPAM),
             variables=["vlan_id", "vlan_number"],
@@ -266,7 +353,8 @@ class pkg_phpIPAM(Package):
         CalmTask.SetVariable.escript(
             name="Get free Network",
             filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetfreeNetwork.py"
+                "scripts",
+                "Package_pkg_phpIPAM_Action___install___Task_GetfreeNetwork.py",
             ),
             target=ref(phpIPAM),
             variables=["subnet_id"],
@@ -275,7 +363,7 @@ class pkg_phpIPAM(Package):
             name="Assign VLAN to Tenant",
             filename=os.path.join(
                 "scripts",
-                "Service_phpIPAM_Action___create___Task_AssignVLANtoTenant.py",
+                "Package_pkg_phpIPAM_Action___install___Task_AssignVLANtoTenant.py",
             ),
             target=ref(phpIPAM),
         )
@@ -283,14 +371,14 @@ class pkg_phpIPAM(Package):
             name="Assign Subnet to Tenant",
             filename=os.path.join(
                 "scripts",
-                "Service_phpIPAM_Action___create___Task_AssignSubnettoTenant.py",
+                "Package_pkg_phpIPAM_Action___install___Task_AssignSubnettoTenant.py",
             ),
             target=ref(phpIPAM),
         )
         CalmTask.SetVariable.escript(
             name="Get Gateway IP",
             filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetGatewayIP.py"
+                "scripts", "Package_pkg_phpIPAM_Action___install___Task_GetGatewayIP.py"
             ),
             target=ref(phpIPAM),
             variables=["gw_id", "gw_ip"],
@@ -298,7 +386,8 @@ class pkg_phpIPAM(Package):
         CalmTask.SetVariable.escript(
             name="Get Network Details",
             filename=os.path.join(
-                "scripts", "Service_phpIPAM_Action___create___Task_GetNetworkDetails.py"
+                "scripts",
+                "Package_pkg_phpIPAM_Action___install___Task_GetNetworkDetails.py",
             ),
             target=ref(phpIPAM),
             variables=["subnet"],
@@ -310,21 +399,24 @@ class pkg_phpIPAM(Package):
         CalmTask.Exec.escript(
             name="Release Subnet",
             filename=os.path.join(
-                "scripts", "pkg_phpIPAM__uninstall__Task_ReleaseSubnet.py"
+                "scripts",
+                "Package_pkg_phpIPAM_Action___uninstall___Task_ReleaseSubnet.py",
             ),
             target=ref(phpIPAM),
         )
         CalmTask.Exec.escript(
             name="Release VLAN",
             filename=os.path.join(
-                "scripts", "pkg_phpIPAM__uninstall__Task_ReleaseVLAN.py"
+                "scripts",
+                "Package_pkg_phpIPAM_Action___uninstall___Task_ReleaseVLAN.py",
             ),
             target=ref(phpIPAM),
         )
         CalmTask.Exec.escript(
             name="Release GW IP",
             filename=os.path.join(
-                "scripts", "pkg_phpIPAM__uninstall__Task_ReleaseGWIP.py"
+                "scripts",
+                "Package_pkg_phpIPAM_Action___uninstall___Task_ReleaseGWIP.py",
             ),
             target=ref(phpIPAM),
         )
@@ -388,24 +480,28 @@ class pkg_Fortigate(Package):
         CalmTask.SetVariable.escript(
             name="Login Fortigate",
             filename=os.path.join(
-                "scripts","lib__Task_LoginFortigate.py"),
-                variables=["fortigate_csrf_token","fortigate_cookie"],
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___install___Task_LoginFortigate.py",
+            ),
+            target=ref(Fortigate),
+            variables=["fortigate_csrf_token", "fortigate_cookie"],
         )
-
         CalmTask.SetVariable.escript(
             name="Create VLAN Interface",
             filename=os.path.join(
-                "scripts","pkg_Fortigate__install__Task_CreateVLANInterface.py"),
-                variables=["interface_name"],
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___install___Task_CreateVLANInterface.py",
+            ),
+            target=ref(Fortigate),
+            variables=["interface_name"],
         )
-
         CalmTask.Exec.escript(
             name="Create Address Object",
             filename=os.path.join(
-                "scripts","pkg_Fortigate__install__Task_Create_Address.py"),
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___install___Task_CreateAddressObject.py",
+            ),
+            target=ref(Fortigate),
         )
 
         CalmTask.SetVariable.escript(
@@ -430,11 +526,12 @@ class pkg_Fortigate(Package):
         CalmTask.SetVariable.escript(
             name="Login Fortigate",
             filename=os.path.join(
-                "scripts","lib__Task_LoginFortigate.py"),
-                variables=["fortigate_csrf_token","fortigate_cookie"],
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___uninstall___Task_LoginFortigate.py",
+            ),
+            target=ref(Fortigate),
+            variables=["fortigate_csrf_token", "fortigate_cookie"],
         )
-
         CalmTask.Exec.escript(
             name="Delete Outgoing",
             filename=os.path.join(
@@ -452,17 +549,24 @@ class pkg_Fortigate(Package):
         CalmTask.Exec.escript(
             name="Delete Address Object",
             filename=os.path.join(
-                "scripts","pkg_Fortigate__uninstall__Task_DeleteAddress.py"),
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___uninstall___Task_DeleteAddressObject.py",
+            ),
+            target=ref(Fortigate),
         )
-
         CalmTask.Exec.escript(
             name="Delete VLAN Interface",
             filename=os.path.join(
-                "scripts","pkg_Fortigate__uninstall__Task_DeleteVLANInterface.py"),
-                target=ref(Fortigate)
+                "scripts",
+                "Package_pkg_Fortigate_Action___uninstall___Task_DeleteVLANInterface.py",
+            ),
+            target=ref(Fortigate),
         )
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 class pkg_PrismCentralDemo(Package):
 
     services = [ref(PrismCentralDemo)]
@@ -474,6 +578,7 @@ class pkg_PrismCentralDemo(Package):
             name="Create Tenant Subnet",
             filename=os.path.join(
                 "scripts",
+<<<<<<< HEAD
                 "pkg_PrismCentralDemo__install__Task_CreateTenantSubnet.py",
             ),
             target=ref(PrismCentralDemo),
@@ -498,9 +603,15 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
             variables=["UID","ROLE_ADMIN_UUID","ROLE_OPERATOR_UUID"]
+=======
+                "Package_pkg_PrismCentralDemo_Action___install___Task_CreateTenantSubnet.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["subnet_uuid","subnet_name"],
+>>>>>>> main
         )
-
         CalmTask.SetVariable.escript(
+<<<<<<< HEAD
             name="getCloudAccount",
             filename=os.path.join(
                 "scripts",
@@ -508,9 +619,18 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
             variables=["CLOUD_ACCOUNT_UUID","PC_ACCOUNT_UUID"]
+=======
+            name="Get User Uuid",
+            filename=os.path.join(
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_GetUserUuid.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["nutanix_calm_user_uuid"],
+>>>>>>> main
         )
-
         CalmTask.SetVariable.escript(
+<<<<<<< HEAD
             name="Create Project",
             filename=os.path.join(
                 "scripts",
@@ -538,9 +658,18 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
             variables=["GROUP_ADMIN_UUID"]
+=======
+            name="Get Account Uuid",
+            filename=os.path.join(
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_AccountUuid.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["nutanix_calm_account_uuid"],
+>>>>>>> main
         )
-
         CalmTask.SetVariable.escript(
+<<<<<<< HEAD
             name="CreateOperatorGroup",
             filename=os.path.join(
                 "scripts",
@@ -548,6 +677,15 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
             variables=["GROUP_OPERATOR_UUID"]
+=======
+            name="Create Project",
+            filename=os.path.join(
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___install___Task_CreateProject.py",
+            ),
+            target=ref(PrismCentralDemo),
+            variables=["project_uuid","project_name"],
+>>>>>>> main
         )
 
         CalmTask.Exec.escript(
@@ -575,32 +713,33 @@ class pkg_PrismCentralDemo(Package):
         CalmTask.SetVariable.escript(
             name="Delete Subnet",
             filename=os.path.join(
-                "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteSubnet.py"
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___uninstall___Task_DeleteSubnet.py",
             ),
-            variables=["task_uuid"],
             target=ref(PrismCentralDemo),
+            variables=["task_uuid"],
         )
-
         CalmTask.Exec.escript(
             name="Monitor Delete Subnet",
             filename=os.path.join(
-                "scripts", "lib__Task_MonitorProgress.py"
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___uninstall___Task_MonitorDeleteSubnet.py",
             ),
             target=ref(PrismCentralDemo),
         )
-
         CalmTask.SetVariable.escript(
             name="Delete Project",
             filename=os.path.join(
-                "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteProject.py"
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___uninstall___Task_DeleteProject.py",
             ),
-            variables=["task_uuid"],
             target=ref(PrismCentralDemo),
+            variables=["task_uuid"],
         )
-
         CalmTask.Exec.escript(
             name="Monitor Delete Project",
             filename=os.path.join(
+<<<<<<< HEAD
                 "scripts", "lib__Task_MonitorProgress.py"
             ),
             target=ref(PrismCentralDemo)
@@ -610,10 +749,15 @@ class pkg_PrismCentralDemo(Package):
             name="DeleteAdminGroup",
             filename=os.path.join(
                 "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteAdminGroup.py"
+=======
+                "scripts",
+                "Package_pkg_PrismCentralDemo_Action___uninstall___Task_MonitorDeleteProject.py",
+>>>>>>> main
             ),
             target=ref(PrismCentralDemo),
         )
 
+<<<<<<< HEAD
         CalmTask.Exec.escript(
             name="DeleteOperatorGroup",
             filename=os.path.join(
@@ -621,6 +765,8 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
         )
+=======
+>>>>>>> main
 
 class _0720591e_deployment(Deployment):
 
@@ -662,9 +808,19 @@ class a6542720_deployment(Deployment):
     packages = [ref(pkg_PrismCentralDemo)]
     substrate = ref(existing_PrismCentralDemo)
 
+class Vault_deployment(Deployment):
+
+    min_replicas = "1"
+    max_replicas = "1"
+    default_replicas = "1"
+
+    packages = [ref(pkg_Vault)]
+    substrate = ref(existing_Vault)
+
 
 class Default(Profile):
 
+<<<<<<< HEAD
     deployments = [_0720591e_deployment, b6867c95_deployment, a6542720_deployment, TenantAD_deployment]
 
     PASSWORD = CalmVariable.Simple(
@@ -738,6 +894,9 @@ class Default(Profile):
         runtime=False,
         description="",
     )
+=======
+    deployments = [_0720591e_deployment, b6867c95_deployment, a6542720_deployment, Vault_deployment]
+>>>>>>> main
 
     tenant_prefix = CalmVariable.Simple(
         "Demo3",
@@ -788,14 +947,24 @@ class Default(Profile):
 
 class CreateDemoTenant(Blueprint):
 
+<<<<<<< HEAD
     services = [phpIPAM, Fortigate, PrismCentralDemo, TenantAD]
     packages = [pkg_phpIPAM, pkg_Fortigate, pkg_PrismCentralDemo, pkg_TenantAD]
     substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo, existing_TenantAD]
+=======
+    services = [phpIPAM, Fortigate, PrismCentralDemo, Vault]
+    packages = [pkg_phpIPAM, pkg_Fortigate, pkg_PrismCentralDemo, pkg_Vault]
+    substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo, existing_Vault]
+>>>>>>> main
     profiles = [Default]
     credentials = [
         BP_CRED_cred_PCDemo,
         BP_CRED_cred_FortiGate,
         BP_CRED_cred_phpIPAM,
         BP_CRED_cred_PrismCentral,
+<<<<<<< HEAD
         BP_CRED_cred_TenantAD
+=======
+        BP_CRED_cred_Vault
+>>>>>>> main
     ]

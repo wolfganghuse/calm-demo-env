@@ -41,8 +41,8 @@ class forticalm_timeResources(AhvVmResources):
         AhvVmDisk.Disk.Scsi.allocateOnStorageContainer(32),
     ]
     nics = [
-        AhvVmNic.NormalNic.ingress("NTNX-DEMO01_IPAM", cluster="NTNX-DEMO01"),
-        AhvVmNic.NormalNic.ingress("demo-tenant01", cluster="NTNX-DEMO01"),
+        AhvVmNic.NormalNic.ingress("NTNX-AHV01_IPAM", cluster="NTNX-AHV01"),
+        AhvVmNic.NormalNic.ingress("NTNX-AHV01_IPAM", cluster="NTNX-AHV01"),
     ]
 
     guest_customization = AhvVmGC.CloudInit(
