@@ -1,0 +1,8 @@
+pkg_PrismCentralDemo__install__Task_CreateTenantSubnet.py
+=> remove hardcoded Switch_UUID, ClusterName, Cluster_UUID
+
+
+pkg_PrismCentralDemo__install__Task_CreateEnvironment.py
+=> remove hardcoded Image-Template UUIDs, Hardcoded Passwords
+
+

@@ -1,9 +1,10 @@
+#script
+GROUP_ADMIN_UUID = "@@{GROUP_ADMIN_UUID}@@"
 username = "@@{cred_PCDemo.username}@@"
 username_secret = "@@{cred_PCDemo.secret}@@"
-subnet_uuid = "@@{subnet_uuid}@@"
 api_server = "@@{address}@@"
 api_server_port = "9440"
-api_server_endpoint = "/api/nutanix/v3/subnets/{}".format(subnet_uuid)
+api_server_endpoint = "/api/nutanix/v3/user_groups/{}".format(GROUP_ADMIN_UUID)
 
 length = 100
 url = "https://{}:{}{}".format(
@@ -11,6 +12,7 @@ url = "https://{}:{}{}".format(
     api_server_port,
     api_server_endpoint
 )
+
 headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 method = "DELETE"
 
@@ -27,10 +29,8 @@ r = urlreq(
 )
 # endregion
 
-# If the call went through successfully, check the progress
 if r.ok:
-    print r.content
-    print "task_uuid={0}".format(json.loads(r.content)['status']['execution_context']['task_uuid'])
+    resp = json.loads(r.content)
 
 # If the call failed
 else:

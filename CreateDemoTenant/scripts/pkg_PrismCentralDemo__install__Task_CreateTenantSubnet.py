@@ -1,3 +1,6 @@
+username = "@@{cred_PCDemo.username}@@"
+username_secret = "@@{cred_PCDemo.secret}@@"
+
 #Calculate needed Addresses
 dhcp_min = 100
 dhcp_max = 200
@@ -8,17 +11,30 @@ tenant_bitmask = @@{phpIPAM.subnet}@@['Subnet bitmask']
 tenant_subnet_split = tenant_subnet.split(".")
 tenant_dhcp_min = "{0}.{1}.{2}.{3}".format(tenant_subnet_split[0],tenant_subnet_split[1],tenant_subnet_split[2],int(tenant_subnet_split[3])+dhcp_min)
 tenant_dhcp_max = "{0}.{1}.{2}.{3}".format(tenant_subnet_split[0],tenant_subnet_split[1],tenant_subnet_split[2],int(tenant_subnet_split[3])+dhcp_max)
+user_project_name = "@@{tenant_prefix}@@"
+project_vlan_id = @@{phpIPAM.vlan_number}@@
 
 tenant_dhcp_range = "{0} {1}".format(tenant_dhcp_min,tenant_dhcp_max)
+subnet_name = "{0}_VPC{1}".format(user_project_name,project_vlan_id)
 
+api_server = "@@{address}@@"
+api_server_port = "9440"
+api_server_endpoint = "/api/nutanix/v3/subnets"
+
+length = 100
+url = "https://{}:{}{}".format(
+    api_server,
+    api_server_port,
+    api_server_endpoint
+)
 
 headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-
+method = "POST"
 
 # Assign found Subnet to Tenant
 payload = {
    "spec":{
-      "name":"Subnet @@{tenant_prefix}@@",
+      "name":subnet_name,
       "resources":{
          "vswitch_name":"br0",
          "subnet_type":"VLAN",
@@ -36,11 +52,11 @@ payload = {
             "subnet_ip":tenant_subnet,
             "dhcp_options":{
                "domain_name_server_list":[
-                  tenant_gw_ip
+                  "8.8.8.8"
                ]
             }
          },
-         "vlan_id":@@{phpIPAM.vlan_number}@@,
+         "vlan_id":project_vlan_id,
          "virtual_switch_uuid":"eb87a234-6ed5-482c-9f80-5c531317437b"
       },
       "cluster_reference":{
@@ -59,14 +75,34 @@ payload = {
       }
    }
 }
-        
-url = "https://@@{existing_PrismCentralDemo.address}@@:9440/api/nutanix/v3/subnets"
-resp = urlreq(url, verb='POST', params=json.dumps(payload), auth='BASIC', user="@@{cred_PCDemo.username}@@", passwd="@@{cred_PCDemo.secret}@@", headers=headers, verify=False)
-if resp.ok:
-    print resp.content
-    print "task_uuid={0}".format(json.loads(resp.content)['status']['execution_context']['task_uuid'])
+#region make the api call
+print("Making a {} API call to {}".format(method, url))
+r = urlreq(
+    url,
+    verb=method,
+    auth='BASIC',
+    user=username,
+    passwd=username_secret,
+    params=json.dumps(payload),
+    headers=headers,
+    verify=False
+)
+# endregion
 
+#region process the results
+if r.ok:
+   print json.dumps(json.loads(r.content), indent=4)
+   print "subnet_name={0}".format(json.loads(r.content)['spec']['name'])
+   print "subnet_uuid={0}".format(json.loads(r.content)['metadata']['uuid'])
+   exit(0)
 # If the call failed
 else:
-        print("Call failed"), json.dumps(json.loads(resp.content), indent=4)
-        exit(1)
+    # print the content of the response (which should have the error message)
+    print("Request failed", json.dumps(
+        json.loads(r.content),
+        indent=4
+    ))
+    print("Headers: {}".format(headers))
+    print("Payload: {}".format(payload))
+    exit(1)
+# endregion
