@@ -106,13 +106,14 @@ class Fortigate(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
-   fortigate_in_id = CalmVariable.Simple(
+    fortigate_in_id = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
-   fortigate_out_id = CalmVariable.Simple(
+
+    fortigate_out_id = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
-   interface_name = CalmVariable.Simple(
+    interface_name = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
@@ -138,7 +139,6 @@ class PrismCentralDemo(Service):
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
 
-<<<<<<< HEAD
     PROJECT_UUID = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
@@ -192,24 +192,6 @@ class TenantAD(Service):
     AD_PATH = CalmVariable.Simple(
         "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
     )
-=======
-    project_uuid = CalmVariable.Simple(
-        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
-    )
-
-    project_name = CalmVariable.Simple(
-        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
-    )
-
-    nutanix_calm_account_uuid = CalmVariable.Simple(
-        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
-    )
-
-    nutanix_calm_user_uuid = CalmVariable.Simple(
-        "", label="", is_mandatory=False, is_hidden=False, runtime=False, description=""
-    )
-
-
 class existing_Vault(Substrate):
 
 
@@ -227,8 +209,6 @@ class existing_Vault(Substrate):
         address="@@{ip_address}@@",
         delay_secs="60",
     )
->>>>>>> main
-
 
 class existing_phpIPAM(Substrate):
 
@@ -283,7 +263,6 @@ class existing_PrismCentralDemo(Substrate):
         delay_secs="60",
     )
 
-<<<<<<< HEAD
 class existing_TenantAD(Substrate):
 
     os_type = "Windows"
@@ -300,7 +279,6 @@ class existing_TenantAD(Substrate):
         address="@@{ip_address}@@",
         delay_secs="60",
     )
-=======
 class pkg_Vault(Package):
     
     services = [ref(Vault)]
@@ -332,7 +310,6 @@ class pkg_Vault(Package):
             ),
             target=ref(Vault)
         )
->>>>>>> main
 
 
 class pkg_phpIPAM(Package):
@@ -563,10 +540,6 @@ class pkg_Fortigate(Package):
             target=ref(Fortigate),
         )
 
-<<<<<<< HEAD
-=======
-
->>>>>>> main
 class pkg_PrismCentralDemo(Package):
 
     services = [ref(PrismCentralDemo)]
@@ -578,7 +551,6 @@ class pkg_PrismCentralDemo(Package):
             name="Create Tenant Subnet",
             filename=os.path.join(
                 "scripts",
-<<<<<<< HEAD
                 "pkg_PrismCentralDemo__install__Task_CreateTenantSubnet.py",
             ),
             target=ref(PrismCentralDemo),
@@ -603,15 +575,8 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
             variables=["UID","ROLE_ADMIN_UUID","ROLE_OPERATOR_UUID"]
-=======
-                "Package_pkg_PrismCentralDemo_Action___install___Task_CreateTenantSubnet.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["subnet_uuid","subnet_name"],
->>>>>>> main
         )
         CalmTask.SetVariable.escript(
-<<<<<<< HEAD
             name="getCloudAccount",
             filename=os.path.join(
                 "scripts",
@@ -619,18 +584,8 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
             variables=["CLOUD_ACCOUNT_UUID","PC_ACCOUNT_UUID"]
-=======
-            name="Get User Uuid",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_GetUserUuid.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["nutanix_calm_user_uuid"],
->>>>>>> main
         )
         CalmTask.SetVariable.escript(
-<<<<<<< HEAD
             name="Create Project",
             filename=os.path.join(
                 "scripts",
@@ -658,18 +613,8 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
             variables=["GROUP_ADMIN_UUID"]
-=======
-            name="Get Account Uuid",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_AccountUuid.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["nutanix_calm_account_uuid"],
->>>>>>> main
         )
         CalmTask.SetVariable.escript(
-<<<<<<< HEAD
             name="CreateOperatorGroup",
             filename=os.path.join(
                 "scripts",
@@ -677,15 +622,6 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
             variables=["GROUP_OPERATOR_UUID"]
-=======
-            name="Create Project",
-            filename=os.path.join(
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___install___Task_CreateProject.py",
-            ),
-            target=ref(PrismCentralDemo),
-            variables=["project_uuid","project_name"],
->>>>>>> main
         )
 
         CalmTask.Exec.escript(
@@ -739,8 +675,7 @@ class pkg_PrismCentralDemo(Package):
         CalmTask.Exec.escript(
             name="Monitor Delete Project",
             filename=os.path.join(
-<<<<<<< HEAD
-                "scripts", "lib__Task_MonitorProgress.py"
+                "scripts", "pkg_PrismCentralDemo__uninstall__Task_MonitorDeleteProject.py"
             ),
             target=ref(PrismCentralDemo)
         )
@@ -749,15 +684,10 @@ class pkg_PrismCentralDemo(Package):
             name="DeleteAdminGroup",
             filename=os.path.join(
                 "scripts", "pkg_PrismCentralDemo__uninstall__Task_DeleteAdminGroup.py"
-=======
-                "scripts",
-                "Package_pkg_PrismCentralDemo_Action___uninstall___Task_MonitorDeleteProject.py",
->>>>>>> main
             ),
             target=ref(PrismCentralDemo),
         )
 
-<<<<<<< HEAD
         CalmTask.Exec.escript(
             name="DeleteOperatorGroup",
             filename=os.path.join(
@@ -765,8 +695,6 @@ class pkg_PrismCentralDemo(Package):
             ),
             target=ref(PrismCentralDemo),
         )
-=======
->>>>>>> main
 
 class _0720591e_deployment(Deployment):
 
@@ -820,8 +748,7 @@ class Vault_deployment(Deployment):
 
 class Default(Profile):
 
-<<<<<<< HEAD
-    deployments = [_0720591e_deployment, b6867c95_deployment, a6542720_deployment, TenantAD_deployment]
+    deployments = [_0720591e_deployment, b6867c95_deployment, a6542720_deployment, TenantAD_deployment, Vault_deployment]
 
     PASSWORD = CalmVariable.Simple(
         "nutanix/4u",
@@ -894,9 +821,6 @@ class Default(Profile):
         runtime=False,
         description="",
     )
-=======
-    deployments = [_0720591e_deployment, b6867c95_deployment, a6542720_deployment, Vault_deployment]
->>>>>>> main
 
     tenant_prefix = CalmVariable.Simple(
         "Demo3",
@@ -947,24 +871,16 @@ class Default(Profile):
 
 class CreateDemoTenant(Blueprint):
 
-<<<<<<< HEAD
-    services = [phpIPAM, Fortigate, PrismCentralDemo, TenantAD]
-    packages = [pkg_phpIPAM, pkg_Fortigate, pkg_PrismCentralDemo, pkg_TenantAD]
-    substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo, existing_TenantAD]
-=======
-    services = [phpIPAM, Fortigate, PrismCentralDemo, Vault]
-    packages = [pkg_phpIPAM, pkg_Fortigate, pkg_PrismCentralDemo, pkg_Vault]
-    substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo, existing_Vault]
->>>>>>> main
+    services = [phpIPAM, Fortigate, PrismCentralDemo, TenantAD, Vault]
+    packages = [pkg_phpIPAM, pkg_Fortigate, pkg_PrismCentralDemo, pkg_TenantAD, pkg_Vault]
+    substrates = [existing_phpIPAM, existing_Fortigate, existing_PrismCentralDemo, existing_TenantAD,existing_Vault]
+ 
     profiles = [Default]
     credentials = [
         BP_CRED_cred_PCDemo,
         BP_CRED_cred_FortiGate,
         BP_CRED_cred_phpIPAM,
         BP_CRED_cred_PrismCentral,
-<<<<<<< HEAD
-        BP_CRED_cred_TenantAD
-=======
+        BP_CRED_cred_TenantAD,
         BP_CRED_cred_Vault
->>>>>>> main
     ]
